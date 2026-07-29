@@ -5,6 +5,7 @@ import { ApiService } from '../core/api.service';
 import { CoachGoal, CoachReading } from '../core/models';
 import { ChartComponent } from '../shared/chart.component';
 import { NumPipe } from '../shared/format.pipe';
+import { INK, INK_FILL, SECONDARY } from '../core/theme';
 
 @Component({
   selector: 'app-coach',
@@ -125,8 +126,8 @@ import { NumPipe } from '../shared/format.pipe';
       .linha { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
       .linha label {
         display: flex; flex-direction: column; gap: 4px;
-        font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
-        text-transform: uppercase; color: var(--graphite);
+        font-family: var(--body); font-size: 0.65rem; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--secondary);
       }
       .linha input {
         font-family: var(--body); font-size: 0.95rem; text-transform: none; letter-spacing: 0;
@@ -217,14 +218,14 @@ export class CoachComponent implements OnInit {
             data: weeks.map((w) => w.minutes),
             // Bateu a meta ganha tinta cheia; nao bateu fica esmaecido - sem
             // vermelho, que neste app significa frequencia cardiaca (SPEC 5).
-            backgroundColor: weeks.map((w) => (w.met_goal ? '#0e1f2b' : 'rgba(14,31,43,0.30)')),
+            backgroundColor: weeks.map((w) => (w.met_goal ? INK : 'rgba(26,26,24,.30)')),
             borderRadius: 2,
           },
           {
             type: 'line',
             label: 'meta',
             data: weeks.map(() => meta),
-            borderColor: '#64798a',
+            borderColor: SECONDARY,
             borderDash: [4, 3],
             borderWidth: 1.5,
             pointRadius: 0,
@@ -251,8 +252,8 @@ export class CoachComponent implements OnInit {
           {
             label: 'kg',
             data: w.series.map((p) => p.weight_kg),
-            borderColor: '#0e1f2b',
-            backgroundColor: 'rgba(14,31,43,0.08)',
+            borderColor: INK,
+            backgroundColor: INK_FILL,
             fill: true,
             borderWidth: 2,
             pointRadius: 2,

@@ -8,11 +8,7 @@ import { ChartComponent } from '../shared/chart.component';
 import { RouteMapComponent } from '../shared/route-map.component';
 import { TelemetryComponent } from '../shared/telemetry-panel.component';
 import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
-
-const INK = '#0e1f2b';
-const PULSE = '#b81d4c';
-const WATT = '#d8930b';
-const CLIMB = '#2e7d6b';
+import { GRID, INK, PULSE, WATT, WATT_FILL } from '../core/theme';
 
 @Component({
   selector: 'app-activity-detail',
@@ -52,8 +48,10 @@ const CLIMB = '#2e7d6b';
         <!-- Perfil de altimetria como faixa de abertura: a silhueta do pedal -->
         @if (profilePath()) {
           <div class="card" style="padding:0; overflow:hidden; margin-bottom:20px">
+            <!-- Hex inline aqui e a excecao consciente a regra do theme.ts: SVG
+                 em template nao importa TypeScript. -->
             <svg viewBox="0 0 1000 130" preserveAspectRatio="none" style="display:block; width:100%; height:130px">
-              <path [attr.d]="profilePath()" fill="rgba(46,125,107,0.16)" stroke="#2e7d6b" stroke-width="1.5" />
+              <path [attr.d]="profilePath()" fill="rgba(31,122,94,.15)" stroke="#1F7A5E" stroke-width="1.5" />
             </svg>
           </div>
         }
@@ -68,67 +66,77 @@ const CLIMB = '#2e7d6b';
 
         <div class="grid cols-4" style="margin-bottom:20px">
           <div class="plate">
-            <span class="label">Distancia</span>
             <span class="value">{{ r.distance_km | num: 1 }}</span><span class="unit">km</span>
+            <span class="label">Distancia</span>
           </div>
           <div class="plate">
-            <span class="label">Tempo</span>
             <span class="value">{{ r.moving_time_s | duration }}</span>
+            <span class="label">Tempo</span>
             <div class="foot">media {{ r.avg_speed_kmh | num: 1 }} km/h</div>
           </div>
           <div class="plate climb">
-            <span class="label">Altimetria</span>
             <span class="value">{{ r.elevation_gain_m | num: 0 }}</span><span class="unit">m</span>
+            <span class="label">Altimetria</span>
           </div>
-          <div class="plate pulse">
-            <span class="label">FC media</span>
-            <span class="value">{{ r.avg_hr | num: 0 }}</span><span class="unit">bpm</span>
-            <div class="foot">max {{ r.max_hr | num: 0 }}</div>
-          </div>
+          @if (r.avg_hr) {
+            <div class="plate pulse">
+              <span class="value">{{ r.avg_hr | num: 0 }}</span><span class="unit">bpm</span>
+              <span class="label">FC média</span>
+              <div class="foot">máx {{ r.max_hr | num: 0 }}</div>
+            </div>
+          } @else {
+            <div class="plate">
+              <span class="value" style="color:var(--secondary)">—</span>
+              <span class="label">Sem cinta cardíaca</span>
+              <div class="foot">a análise mede resultado, não custo</div>
+            </div>
+          }
           <div class="plate watt">
-            <span class="label">Potencia media @if (r.power_is_estimated) { <em>estimada</em> }</span>
             <span class="value">{{ r.avg_power | num: 0 }}</span><span class="unit">W</span>
-            <div class="foot">max {{ r.max_power | num: 0 }} W</div>
+            <span class="label">
+              {{ r.power_is_estimated ? 'Potência estimada' : 'Potência medida' }}
+            </span>
+            <div class="foot">máx {{ r.max_power | num: 0 }} W</div>
           </div>
           <div class="plate watt">
-            <span class="label">Potencia normalizada</span>
             <span class="value">{{ r.normalized_power | num: 0 }}</span><span class="unit">W</span>
+            <span class="label">Potencia normalizada</span>
             <div class="foot">VI {{ r.variability_index | num: 2 }}</div>
           </div>
           <div class="plate">
-            <span class="label">Intensidade</span>
             <span class="value">{{ r.intensity_factor | num: 2 }}</span>
+            <span class="label">Intensidade</span>
             <div class="foot">IF sobre o FTP</div>
           </div>
           <div class="plate">
-            <span class="label">Carga</span>
             <span class="value">{{ r.tss | num: 0 }}</span><span class="unit">TSS</span>
+            <span class="label">Carga</span>
             <div class="foot">
               @if (r.trimp) { TRIMP {{ r.trimp | num: 0 }} } @else { calculada da potencia estimada }
             </div>
           </div>
           <div class="plate">
-            <span class="label">Cronometro</span>
             <span class="value">{{ r.moving_time_s | duration }}</span>
+            <span class="label">Cronometro</span>
             <div class="foot">tempo total {{ r.duration_s | duration }}</div>
           </div>
           <div class="plate">
-            <span class="label">Cadencia maxima</span>
             <span class="value">{{ r.max_cadence | num: 0 }}</span><span class="unit">rpm</span>
+            <span class="label">Cadencia maxima</span>
           </div>
           <div class="plate climb">
-            <span class="label">Grau+ med / max</span>
             <span class="value">{{ r.grade_up_avg | num: 1 }}</span><span class="unit">%</span>
+            <span class="label">Grau+ med / max</span>
             <div class="foot">maximo {{ r.grade_up_max | num: 1 }}% · Grau- {{ r.grade_down_avg | num: 1 }}%</div>
           </div>
           <div class="plate climb">
-            <span class="label">VAM+ med</span>
             <span class="value">{{ r.vam_up_avg | num: 0 }}</span><span class="unit">m/h</span>
+            <span class="label">VAM+ med</span>
             <div class="foot">pico {{ r.vam_up_max | num: 0 }} m/h</div>
           </div>
           <div class="plate climb">
-            <span class="label">Declinio cumulativo</span>
             <span class="value">{{ r.descent_m | num: 0 }}</span><span class="unit">m</span>
+            <span class="label">Declinio cumulativo</span>
             <div class="foot">altitude {{ r.altitude_min | num: 0 }}–{{ r.altitude_max | num: 0 }} m</div>
           </div>
         </div>
@@ -289,7 +297,7 @@ export class ActivityDetailComponent implements OnInit {
       data: { labels, datasets },
       options: {
         scales: {
-          y: { position: 'left', grid: { color: 'rgba(14,31,43,0.06)' }, title: { display: true, text: 'km/h' } },
+          y: { position: 'left', grid: { color: GRID }, title: { display: true, text: 'km/h' } },
           y1: { position: 'right', grid: { display: false }, title: { display: true, text: 'bpm / W' } },
           x: { ticks: { maxTicksLimit: 12 }, grid: { display: false } },
         },
@@ -312,7 +320,7 @@ export class ActivityDetailComponent implements OnInit {
             label: 'W',
             data: entries.map(([, watts]) => watts),
             borderColor: WATT,
-            backgroundColor: 'rgba(216,147,11,0.12)',
+            backgroundColor: WATT_FILL,
             fill: true,
             borderWidth: 2,
             pointRadius: 3,

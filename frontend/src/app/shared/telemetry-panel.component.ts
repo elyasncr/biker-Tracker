@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { ChartConfiguration } from 'chart.js';
-import { Analysis, ClimbComparison, GearCoverage, SegmentHighlight } from '../core/models';
+import { Analysis, ClimbComparison, CoverageBand, GearCoverage, SegmentHighlight } from '../core/models';
 import { ChartComponent } from './chart.component';
 import { DurationPipe, NumPipe } from './format.pipe';
+import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
 
 @Component({
   selector: 'app-telemetry',
@@ -129,9 +130,27 @@ import { DurationPipe, NumPipe } from './format.pipe';
         <div class="grid cols-2" style="margin-bottom:20px">
           <div class="card">
             <h2>{{ coverage() ? 'Cobertura de marchas' : 'Marchas usadas' }}</h2>
-            <div class="chart-box" [style.height.px]="coverage() ? 420 : 260">
-              @if (gearChart(); as cfg) { <app-chart [config]="cfg" /> }
-            </div>
+            @if (coverage(); as cov) {
+              <div class="gear-bars">
+                @for (b of cov.bands; track b.label) {
+                  <div class="gear-row" [class.parada]="!b.used">
+                    <span class="gear-name mono">{{ b.label }}</span>
+                    <span class="gear-track">
+                      @if (b.used) {
+                        <span class="gear-fill" [style.width.%]="largura(b, cov)"></span>
+                      }
+                    </span>
+                    <span class="gear-time mono">
+                      {{ b.used ? (b.seconds / 60 | num: 1) + ' min' : 'parada' }}
+                    </span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="chart-box">
+                @if (gearChart(); as cfg) { <app-chart [config]="cfg" /> }
+              </div>
+            }
           </div>
           <div class="card">
             <h2>Leitura das marchas</h2>
@@ -203,7 +222,7 @@ import { DurationPipe, NumPipe } from './format.pipe';
           <div class="chart-box" style="margin-bottom:16px">
             @if (splitChart(); as cfg) { <app-chart [config]="cfg" /> }
           </div>
-          <table>
+          <table class="table-cards">
             <thead>
               <tr>
                 <th>Km</th>
@@ -218,13 +237,13 @@ import { DurationPipe, NumPipe } from './format.pipe';
             <tbody>
               @for (split of analysis!.splits; track split.km) {
                 <tr>
-                  <td class="mono">{{ split.km }}</td>
-                  <td class="num mono">{{ split.duration_s | duration }}</td>
-                  <td class="num mono">{{ split.speed_kmh | num: 1 }}</td>
-                  <td class="num mono">{{ split.elevation_m | num: 0 }} m</td>
-                  <td class="num mono">{{ split.avg_hr | num: 0 }}</td>
-                  <td class="num mono">{{ split.avg_power | num: 0 }}</td>
-                  <td class="num mono">{{ split.avg_cadence | num: 0 }}</td>
+                  <td class="mono" data-label="Km">{{ split.km }}</td>
+                  <td class="num mono" data-label="Tempo">{{ split.duration_s | duration }}</td>
+                  <td class="num mono" data-label="km/h">{{ split.speed_kmh | num: 1 }}</td>
+                  <td class="num mono" data-label="Subida">{{ split.elevation_m | num: 0 }} m</td>
+                  <td class="num mono" data-label="FC">{{ split.avg_hr | num: 0 }}</td>
+                  <td class="num mono" data-label="W">{{ split.avg_power | num: 0 }}</td>
+                  <td class="num mono" data-label="rpm">{{ split.avg_cadence | num: 0 }}</td>
                 </tr>
               }
             </tbody>
@@ -238,7 +257,7 @@ import { DurationPipe, NumPipe } from './format.pipe';
       .moment {
         background: #fff;
         border: 1px solid var(--rule);
-        border-left: 4px solid var(--graphite);
+        border-left: 4px solid var(--secondary);
         border-radius: var(--radius);
         padding: 18px;
       }
@@ -246,11 +265,11 @@ import { DurationPipe, NumPipe } from './format.pipe';
       .moment.bad { border-left-color: var(--pulse); }
       .moment header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
       .tag {
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.65rem;
         letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
       }
       .delta {
         margin-left: auto;
@@ -261,7 +280,7 @@ import { DurationPipe, NumPipe } from './format.pipe';
       .good .delta { color: var(--climb); }
       .bad .delta { color: var(--pulse); }
       .moment h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 400; margin: 0; }
-      .context { font-size: 0.8rem; color: var(--graphite); margin: 2px 0 12px; }
+      .context { font-size: 0.8rem; color: var(--secondary); margin: 2px 0 12px; }
       .moment ul { list-style: none; margin: 0; padding: 0; }
       .moment li {
         font-size: 0.88rem;
@@ -271,16 +290,16 @@ import { DurationPipe, NumPipe } from './format.pipe';
       }
       .kind {
         display: block;
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.6rem;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
         margin-bottom: 3px;
       }
       .footnote {
         font-size: 0.8rem;
-        color: var(--graphite);
+        color: var(--secondary);
         border-left: 2px solid var(--rule);
         padding-left: 12px;
         margin: 0;
@@ -294,14 +313,14 @@ import { DurationPipe, NumPipe } from './format.pipe';
       }
       .quarter .label {
         display: block;
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.62rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
       }
       .quarter .value { font-family: var(--display); font-size: 1.6rem; }
-      .quarter .unit { font-family: var(--mono); font-size: 0.72rem; color: var(--graphite); margin-left: 3px; }
+      .quarter .unit { font-family: var(--body); font-size: 0.72rem; color: var(--secondary); margin-left: 3px; }
       .climb {
         display: flex;
         align-items: center;
@@ -313,6 +332,20 @@ import { DurationPipe, NumPipe } from './format.pipe';
       .climb .context { margin: 0 0 0 8px; display: inline; }
       .verdict { margin-left: auto; font-size: 0.85rem; color: var(--pulse); }
       .verdict.faster { color: var(--climb); }
+      .gear-bars { display: flex; flex-direction: column; gap: 6px; }
+      .gear-row { display: flex; align-items: center; gap: 10px; }
+      .gear-name { font-size: .72rem; color: var(--secondary); width: 132px; flex-shrink: 0; }
+      .gear-track { flex: 1; height: 10px; background: var(--track); display: block; }
+      .gear-fill { display: block; height: 10px; background: var(--ink); }
+      .gear-time { font-size: .72rem; color: var(--secondary); width: 56px; text-align: right; flex-shrink: 0; }
+      /* Faixa parada: trilho tracejado e vazio. O vazio E a informacao - se ele
+         nao aparecer, a tela deixa de responder a pergunta que ela existe para
+         responder. */
+      .gear-row.parada .gear-track { background: transparent; border: 1px dashed var(--track-edge); }
+      .gear-row.parada .gear-name, .gear-row.parada .gear-time { color: var(--muted); }
+      @media (max-width: 620px) {
+        .gear-name { width: 96px; }
+      }
     `,
   ],
 })
@@ -351,7 +384,7 @@ export class TelemetryComponent {
             label: 'minutos',
             data: bands.map((b) => Math.round((b.seconds / 60) * 10) / 10),
             // Faixas muito baixas ganham destaque: sao as que castigam a articulacao.
-            backgroundColor: bands.map((b) => (b.rpm_low < 70 ? '#b81d4c' : '#2e7d6b')),
+            backgroundColor: bands.map((b) => (b.rpm_low < 70 ? PULSE : CLIMB)),
             borderRadius: 2,
           },
         ],
@@ -365,38 +398,13 @@ export class TelemetryComponent {
   }
 
   gearChart(): ChartConfiguration | null {
-    const cov = this.coverage();
-    return cov ? this.coverageChart(cov) : this.histogramChart();
+    return this.coverage() ? null : this.histogramChart();
   }
 
-  /**
-   * Uma barra por relacao declarada, em vez de faixas arbitrarias de 0,25 m.
-   * Faixa parada nao tem barra para desenhar - o "· parada" no rotulo e que
-   * carrega a informacao, porque barra de comprimento zero nao se ve.
-   */
-  private coverageChart(cov: GearCoverage): ChartConfiguration {
-    return {
-      type: 'bar',
-      data: {
-        labels: cov.bands.map((b) => (b.used ? b.label : b.label + ' · parada')),
-        datasets: [
-          {
-            label: 'minutos',
-            data: cov.bands.map((b) => Math.round((b.seconds / 60) * 10) / 10),
-            backgroundColor: '#0e1f2b',
-            borderRadius: 2,
-          },
-        ],
-      },
-      options: {
-        indexAxis: 'y',
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { title: { display: true, text: 'minutos' } },
-          y: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        },
-      },
-    };
+  /** Largura relativa a faixa mais usada, para a barra mais longa encher a linha. */
+  largura(band: CoverageBand, cov: GearCoverage): number {
+    const maior = Math.max(...cov.bands.map((b) => b.seconds), 1);
+    return Math.round((band.seconds / maior) * 100);
   }
 
   private histogramChart(): ChartConfiguration | null {
@@ -414,7 +422,7 @@ export class TelemetryComponent {
             label: 'segundos',
             data: histogram.map((h) => h.seconds),
             // Os picos sao as marchas favoritas: ganham destaque.
-            backgroundColor: histogram.map((h) => (peaks.has(h.development_m) ? '#d8930b' : 'rgba(14,31,43,0.55)')),
+            backgroundColor: histogram.map((h) => (peaks.has(h.development_m) ? WATT : 'rgba(26,26,24,.55)')),
             borderRadius: 1,
           },
         ],
@@ -443,7 +451,7 @@ export class TelemetryComponent {
             type: 'bar',
             label: 'Velocidade (km/h)',
             data: splits.map((s) => s.speed_kmh),
-            backgroundColor: 'rgba(14,31,43,0.8)',
+            backgroundColor: 'rgba(26,26,24,.8)',
             borderRadius: 2,
             yAxisID: 'y',
           },
@@ -451,8 +459,8 @@ export class TelemetryComponent {
             type: 'line',
             label: 'Subida no km (m)',
             data: splits.map((s) => s.elevation_m),
-            borderColor: '#2e7d6b',
-            backgroundColor: 'rgba(46,125,107,0.14)',
+            borderColor: CLIMB,
+            backgroundColor: CLIMB_FILL,
             fill: true,
             pointRadius: 0,
             borderWidth: 1.5,

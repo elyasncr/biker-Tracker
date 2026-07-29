@@ -8,13 +8,16 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { FONT_BODY, RULE, SECONDARY } from '../core/theme';
 
 Chart.register(...registerables);
 
-// Defaults alinhados ao sistema visual do app
-Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+// Defaults alinhados ao sistema visual: Inter nos rotulos, secundario na cor
+// (7,00:1 sobre o papel), e algarismos alinhados como no resto do app.
+Chart.defaults.font.family = FONT_BODY;
 Chart.defaults.font.size = 11;
-Chart.defaults.color = '#64798a';
+Chart.defaults.color = SECONDARY;
+Chart.defaults.borderColor = RULE;
 
 @Component({
   selector: 'app-chart',

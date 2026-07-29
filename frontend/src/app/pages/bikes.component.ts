@@ -252,7 +252,7 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
     `
       .bike header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
       .badge {
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.6rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -261,29 +261,29 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
         padding: 3px 7px;
         border-radius: 2px;
       }
-      .context { font-size: 0.82rem; color: var(--graphite); margin: 0 0 14px; }
-      .dentes { font-family: var(--mono); font-size: 0.72rem; color: var(--graphite); text-transform: none; letter-spacing: 0; }
+      .context { font-size: 0.82rem; color: var(--secondary); margin: 0 0 14px; }
+      .dentes { font-family: var(--body); font-size: 0.72rem; color: var(--secondary); text-transform: none; letter-spacing: 0; }
       .odo { display: flex; gap: 18px; border-top: 1px solid var(--rule); padding-top: 12px; margin-bottom: 10px; }
       .odo .label {
         display: block;
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.6rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
       }
       .odo .value { font-family: var(--display); font-size: 1.5rem; }
-      .odo .unit { font-family: var(--mono); font-size: 0.7rem; color: var(--graphite); margin-left: 2px; }
+      .odo .unit { font-family: var(--body); font-size: 0.7rem; color: var(--secondary); margin-left: 2px; }
       .form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
       .form label {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.65rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
       }
       .form input,
       .form select {
@@ -310,11 +310,11 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
         display: flex;
         flex-direction: column;
         gap: 4px;
-        font-family: var(--mono);
+        font-family: var(--body);
         font-size: 0.65rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--graphite);
+        color: var(--secondary);
       }
       .range input,
       .range select {

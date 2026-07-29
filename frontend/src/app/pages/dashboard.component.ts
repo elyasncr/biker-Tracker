@@ -6,12 +6,7 @@ import { ApiService } from '../core/api.service';
 import { AthleteSettings, Records, Totals } from '../core/models';
 import { ChartComponent } from '../shared/chart.component';
 import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
-
-const INK = '#0e1f2b';
-const PULSE = '#b81d4c';
-const WATT = '#d8930b';
-const CLIMB = '#2e7d6b';
-const GRAPHITE = '#64798a';
+import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/theme';
 
 @Component({
   selector: 'app-dashboard',
@@ -144,7 +139,7 @@ const GRAPHITE = '#64798a';
           <a class="hint" routerLink="/treinos">ver todos →</a>
         </div>
         <div class="card">
-          <table>
+          <table class="table-cards">
             <thead>
               <tr>
                 <th>Data</th>
@@ -160,14 +155,14 @@ const GRAPHITE = '#64798a';
             <tbody>
               @for (ride of recent(); track ride.id) {
                 <tr [routerLink]="['/treinos', ride.id]">
-                  <td>{{ ride.started_at | rideDate }}</td>
-                  <td class="num">{{ ride.distance_km | num: 1 }}</td>
-                  <td class="num">{{ ride.moving_time_s | duration }}</td>
-                  <td class="num">{{ ride.avg_speed_kmh | num: 1 }}</td>
-                  <td class="num">{{ ride.elevation_gain_m | num: 0 }}</td>
-                  <td class="num">{{ ride.avg_hr | num: 0 }}</td>
-                  <td class="num">{{ ride.normalized_power | num: 0 }}</td>
-                  <td class="num">{{ ride.tss | num: 0 }}</td>
+                  <td data-label="Data">{{ ride.started_at | rideDate }}</td>
+                  <td class="num" data-label="km">{{ ride.distance_km | num: 1 }}</td>
+                  <td class="num" data-label="Tempo">{{ ride.moving_time_s | duration }}</td>
+                  <td class="num" data-label="Media">{{ ride.avg_speed_kmh | num: 1 }}</td>
+                  <td class="num" data-label="Subida">{{ ride.elevation_gain_m | num: 0 }}</td>
+                  <td class="num" data-label="FC">{{ ride.avg_hr | num: 0 }}</td>
+                  <td class="num" data-label="NP">{{ ride.normalized_power | num: 0 }}</td>
+                  <td class="num" data-label="TSS">{{ ride.tss | num: 0 }}</td>
                 </tr>
               }
             </tbody>
@@ -261,7 +256,7 @@ export class DashboardComponent implements OnInit {
             type: 'bar',
             label: 'Distancia (km)',
             data: points.map((p) => p.distance_km),
-            backgroundColor: 'rgba(14, 31, 43, 0.82)',
+            backgroundColor: INK,
             borderRadius: 2,
             yAxisID: 'y',
             order: 2,
@@ -282,7 +277,7 @@ export class DashboardComponent implements OnInit {
       },
       options: {
         scales: {
-          y: { position: 'left', grid: { color: 'rgba(14,31,43,0.07)' }, title: { display: true, text: 'km' } },
+          y: { position: 'left', grid: { color: GRID }, title: { display: true, text: 'km' } },
           y1: { position: 'right', grid: { display: false }, title: { display: true, text: 'TSS' } },
           x: { grid: { display: false } },
         },
@@ -301,7 +296,7 @@ export class DashboardComponent implements OnInit {
             label: 'CTL (base)',
             data: points.map((p) => p.ctl),
             borderColor: INK,
-            backgroundColor: 'rgba(14,31,43,0.08)',
+            backgroundColor: INK_FILL,
             fill: true,
             borderWidth: 2,
             pointRadius: 0,
@@ -329,7 +324,7 @@ export class DashboardComponent implements OnInit {
       },
       options: {
         scales: {
-          y: { grid: { color: 'rgba(14,31,43,0.07)' } },
+          y: { grid: { color: GRID } },
           y1: { position: 'right', grid: { display: false } },
           x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } },
         },
@@ -348,7 +343,7 @@ export class DashboardComponent implements OnInit {
             label: 'Melhor potencia media (W)',
             data: points.map((p) => p.watts),
             borderColor: WATT,
-            backgroundColor: 'rgba(216,147,11,0.12)',
+            backgroundColor: WATT_FILL,
             fill: true,
             borderWidth: 2,
             pointRadius: 3,
@@ -359,7 +354,7 @@ export class DashboardComponent implements OnInit {
       },
       options: {
         scales: {
-          y: { grid: { color: 'rgba(14,31,43,0.07)' }, title: { display: true, text: 'watts' } },
+          y: { grid: { color: GRID }, title: { display: true, text: 'watts' } },
           x: { grid: { display: false }, title: { display: true, text: 'duracao do esforco' } },
         },
         plugins: { legend: { display: false } },
@@ -386,7 +381,7 @@ export class DashboardComponent implements OnInit {
       options: {
         indexAxis: 'y',
         scales: {
-          x: { grid: { color: 'rgba(14,31,43,0.07)' }, title: { display: true, text: 'horas' } },
+          x: { grid: { color: GRID }, title: { display: true, text: 'horas' } },
           y: { grid: { display: false } },
         },
         plugins: { legend: { display: false } },

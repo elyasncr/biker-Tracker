@@ -9,7 +9,18 @@ import { ApiService } from './core/api.service';
   template: `
     <div class="shell">
       <header class="topbar">
-        <a routerLink="/" class="brand">Bike<span>·</span>Tracker</a>
+        <a routerLink="/" class="brand">
+          <!-- Hex inline aqui e a excecao consciente a regra do theme.ts: SVG em
+               template nao importa TypeScript. O simbolo e o perfil de altimetria
+               com o pico em vermelho de batimento. -->
+          <svg width="26" height="26" viewBox="0 0 44 44" aria-hidden="true">
+            <rect width="44" height="44" rx="7" fill="#1A1A18" />
+            <path d="M7,32 L14,24 L20,27 L27,14 L33,21 L37,18" fill="none" stroke="#1F7A5E"
+                  stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="27" cy="14" r="3.4" fill="#B8324A" />
+          </svg>
+          Bike<span class="dot">·</span>Tracker
+        </a>
         <nav class="nav">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Evolucao</a>
           <a routerLink="/treinador" routerLinkActive="active">Treinador</a>

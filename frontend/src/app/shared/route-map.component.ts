@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { RoutePoint, SegmentHighlight } from '../core/models';
+import { CLIMB, INK, MAP_RAMPS, PAPER, PULSE } from '../core/theme';
 
 export type MapMetric = 'speed' | 'power' | 'hr' | 'cadence' | 'altitude';
 
@@ -19,11 +20,11 @@ interface Ramp {
 }
 
 const RAMPS: Record<MapMetric, Ramp> = {
-  speed: { label: 'Velocidade', unit: 'km/h', colors: ['#9db4c4', '#4f7d96', '#16303f'] },
-  power: { label: 'Potencia', unit: 'W', colors: ['#f0dcae', '#e2ad3c', '#a8620a'] },
-  hr: { label: 'Frequencia cardiaca', unit: 'bpm', colors: ['#e8bcc9', '#d15b7f', '#8c0f38'] },
-  cadence: { label: 'Cadencia', unit: 'rpm', colors: ['#b7d8cd', '#4f9e88', '#1c5546'] },
-  altitude: { label: 'Altitude', unit: 'm', colors: ['#cfd9c4', '#8aa06f', '#4a5c33'] },
+  speed: { label: 'Velocidade', unit: 'km/h', colors: [...MAP_RAMPS.speed] },
+  power: { label: 'Potencia', unit: 'W', colors: [...MAP_RAMPS.power] },
+  hr: { label: 'Frequencia cardiaca', unit: 'bpm', colors: [...MAP_RAMPS.hr] },
+  cadence: { label: 'Cadencia', unit: 'rpm', colors: [...MAP_RAMPS.cadence] },
+  altitude: { label: 'Altitude', unit: 'm', colors: [...MAP_RAMPS.altitude] },
 };
 
 @Component({
@@ -60,7 +61,7 @@ const RAMPS: Record<MapMetric, Ramp> = {
         border-radius: 4px;
         margin-left: auto;
       }
-      .scale-labels { font-size: 0.7rem; color: var(--graphite); }
+      .scale-labels { font-size: 0.7rem; color: var(--secondary); }
       @media (max-width: 620px) {
         .map-canvas { height: 320px; }
         .scale, .scale-labels { display: none; }
@@ -162,14 +163,14 @@ export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     this.kilometreMarkers();
-    this.marker(this.points[0], 'Largada', '#16303f');
-    this.marker(this.points[this.points.length - 1], 'Chegada', '#16303f');
+    this.marker(this.points[0], 'Largada', INK);
+    this.marker(this.points[this.points.length - 1], 'Chegada', INK);
 
     if (this.best) {
-      this.highlight(this.best, 'MELHOR', '#2e7d6b');
+      this.highlight(this.best, 'MELHOR', CLIMB);
     }
     if (this.worst) {
-      this.highlight(this.worst, 'PIOR', '#b81d4c');
+      this.highlight(this.worst, 'PIOR', PULSE);
     }
 
     const bounds = L.latLngBounds(this.points.map((p) => [p.lat, p.lon] as L.LatLngExpression));
@@ -192,7 +193,9 @@ export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       html:
         '<div style="background:' +
         color +
-        ';color:#fff;font:600 10px/1 IBM Plex Mono,monospace;letter-spacing:.1em;' +
+        ';color:' +
+        PAPER +
+        ';font:600 10px/1 IBM Plex Mono,monospace;letter-spacing:.1em;' +
         'padding:5px 8px;border-radius:2px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.3)">' +
         label +
         '</div>',
@@ -228,9 +231,15 @@ export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         const icon = L.divIcon({
           className: '',
           html:
-            '<div style="background:#16303f;color:#fff;font:500 10px/1 IBM Plex Mono,monospace;' +
+            '<div style="background:' +
+            INK +
+            ';color:' +
+            PAPER +
+            ';font:500 10px/1 IBM Plex Mono,monospace;' +
             'width:20px;height:20px;border-radius:50%;display:flex;align-items:center;' +
-            'justify-content:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)">' +
+            'justify-content:center;border:2px solid ' +
+            PAPER +
+            ';box-shadow:0 1px 3px rgba(0,0,0,.35)">' +
             next +
             '</div>',
           iconAnchor: [12, 12],
@@ -247,7 +256,7 @@ export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private marker(point: RoutePoint, label: string, color: string): void {
     L.circleMarker([point.lat, point.lon], {
       radius: 6,
-      color: '#fff',
+      color: PAPER,
       weight: 2,
       fillColor: color,
       fillOpacity: 1,

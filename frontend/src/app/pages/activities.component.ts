@@ -34,7 +34,7 @@ import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
         </div>
       } @else {
         <div class="card">
-          <table>
+          <table class="table-cards">
             <thead>
               <tr>
                 <th>Data</th>
@@ -55,18 +55,18 @@ import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
             <tbody>
               @for (ride of rides(); track ride.id) {
                 <tr>
-                  <td [routerLink]="['/treinos', ride.id]">{{ ride.started_at | rideDate }}</td>
-                  <td [routerLink]="['/treinos', ride.id]">{{ ride.title }}</td>
-                  <td>{{ ride.bike_name ?? '—' }}</td>
-                  <td class="num">{{ ride.distance_km | num: 1 }}</td>
-                  <td class="num">{{ ride.moving_time_s | duration }}</td>
-                  <td class="num">{{ ride.avg_speed_kmh | num: 1 }}</td>
-                  <td class="num">{{ ride.elevation_gain_m | num: 0 }}</td>
-                  <td class="num">{{ ride.avg_hr | num: 0 }}</td>
-                  <td class="num">{{ ride.avg_power | num: 0 }}</td>
-                  <td class="num">{{ ride.normalized_power | num: 0 }}</td>
-                  <td class="num">{{ ride.intensity_factor | num: 2 }}</td>
-                  <td class="num">{{ ride.tss | num: 0 }}</td>
+                  <td data-label="Data" [routerLink]="['/treinos', ride.id]">{{ ride.started_at | rideDate }}</td>
+                  <td data-label="Treino" [routerLink]="['/treinos', ride.id]">{{ ride.title }}</td>
+                  <td data-label="Bike">{{ ride.bike_name ?? '—' }}</td>
+                  <td class="num" data-label="km">{{ ride.distance_km | num: 1 }}</td>
+                  <td class="num" data-label="Tempo">{{ ride.moving_time_s | duration }}</td>
+                  <td class="num" data-label="Media">{{ ride.avg_speed_kmh | num: 1 }}</td>
+                  <td class="num" data-label="Subida">{{ ride.elevation_gain_m | num: 0 }}</td>
+                  <td class="num" data-label="FC med">{{ ride.avg_hr | num: 0 }}</td>
+                  <td class="num" data-label="Pot med">{{ ride.avg_power | num: 0 }}</td>
+                  <td class="num" data-label="NP">{{ ride.normalized_power | num: 0 }}</td>
+                  <td class="num" data-label="IF">{{ ride.intensity_factor | num: 2 }}</td>
+                  <td class="num" data-label="TSS">{{ ride.tss | num: 0 }}</td>
                   <td class="num">
                     <button class="btn ghost" style="padding:4px 9px" (click)="remove(ride, $event)">Remover</button>
                   </td>
