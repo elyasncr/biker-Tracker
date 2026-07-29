@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data:ro
+      - ./backend:/srv
+    environment:
+      DATA_DIR: /data
+      DATABASE_URL: sqlite:////srv/igpsport.db
+      FTP_WATTS: "220"
+      HR_MAX: "190"
+      HR_REST: "55"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npx ng serve --host 0.0.0.0 --proxy-config proxy.conf.json"
+    depends_on:
+      - backend

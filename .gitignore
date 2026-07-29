@@ -1,0 +1,37 @@
+# --- Segredos e dados pessoais: NUNCA versionar -------------------------
+# O .env guarda FTP, peso e (se um dia existir) o client_secret do iGPSPORT.
+.env
+.env.*
+!.env.example
+
+# O banco tem seus treinos, seu peso e suas coordenadas de GPS.
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Os .fit trazem a rota exata dos seus pedais - inclusive de onde voce sai
+# de casa. Eles sao seus; o repositorio nao precisa deles.
+data/*.fit
+data/**/*.fit
+
+# --- Python -------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# --- Node / Angular -----------------------------------------------------
+node_modules/
+dist/
+.angular/
+out-tsc/
+
+# --- Sistema operacional e editor ---------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
