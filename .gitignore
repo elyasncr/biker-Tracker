@@ -29,9 +29,13 @@ dist/
 .angular/
 out-tsc/
 
+# --- Mockups do brainstorm visual ---------------------------------------
+.superpowers/
+
 # --- Sistema operacional e editor ---------------------------------------
 .DS_Store
 Thumbs.db
 *.swp
 .idea/
 .vscode/
+docs/
