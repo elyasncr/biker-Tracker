@@ -214,20 +214,20 @@ def _insight(bands: list[dict], off_ratio: float) -> str:
     total = len(bands)
 
     if not nao_usadas:
-        texto = f"Voce passou pelas {total} faixas de marcha da bike neste pedal."
+        texto = f"Você passou pelas {total} faixas de marcha da bike neste pedal."
     else:
         nomes = ", ".join(b["label"] for b in nao_usadas[:3])
         resto = f" e mais {len(nao_usadas) - 3}" if len(nao_usadas) > 3 else ""
         texto = (
             f"{len(nao_usadas)} de {total} faixas ficaram paradas: {nomes}{resto}. "
-            f"Num pedal so isso nao quer dizer muito - relacao parada em varios "
-            f"pedais seguidos e que vira peso morto no cassete."
+            f"Num pedal só isso não quer dizer muito - relação parada em vários "
+            f"pedais seguidos é que vira peso morto no cassete."
         )
 
     if off_ratio > OFF_GEAR_WARN:
         texto += (
-            f" Atencao: {off_ratio * 100:.0f}% do tempo pedalando caiu fora de qualquer "
-            f"relacao declarada. Confira os dentes da catraca e a circunferencia do aro - "
+            f" Atenção: {off_ratio * 100:.0f}% do tempo pedalando caiu fora de qualquer "
+            f"relação declarada. Confira os dentes da catraca e a circunferência do aro - "
             f"com um dos dois errado, o mapa inteiro sai deslocado."
         )
     return texto

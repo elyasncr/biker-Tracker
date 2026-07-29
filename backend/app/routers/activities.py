@@ -40,7 +40,7 @@ def list_activities(
 def get_activity(activity_id: int, db: Session = Depends(get_db), streams: bool = True):
     activity = db.get(Activity, activity_id)
     if activity is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
     payload = ActivityDetail.model_validate(activity)
     payload.bike_name = activity.bike.name if activity.bike else None
     if streams and activity.stream is not None:
@@ -58,7 +58,7 @@ def update_activity(
 ):
     activity = db.get(Activity, activity_id)
     if activity is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
     if title is not None:
         activity.title = title
     if notes is not None:
@@ -70,7 +70,7 @@ def update_activity(
             activity.bike_id = None
         else:
             if db.get(Bike, bike_id) is None:
-                raise HTTPException(404, "Bike nao encontrada")
+                raise HTTPException(404, "Bike não encontrada")
             activity.bike_id = bike_id
     db.commit()
     db.refresh(activity)
@@ -83,6 +83,6 @@ def update_activity(
 def delete_activity(activity_id: int, db: Session = Depends(get_db)):
     activity = db.get(Activity, activity_id)
     if activity is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
     db.delete(activity)
     db.commit()

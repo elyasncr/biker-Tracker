@@ -23,14 +23,14 @@ class WeightInput(BaseModel):
     @classmethod
     def _peso_plausivel(cls, v):
         if not 30 <= v <= 250:
-            raise ValueError("Peso fora da faixa plausivel (30 a 250 kg)")
+            raise ValueError("Peso fora da faixa plausível (30 a 250 kg)")
         return round(v, 1)
 
     @field_validator("measured_on")
     @classmethod
     def _nao_pode_ser_futuro(cls, v):
         if v > date.today():
-            raise ValueError("Nao da para pesar no futuro")
+            raise ValueError("Não dá para pesar no futuro")
         return v
 
 

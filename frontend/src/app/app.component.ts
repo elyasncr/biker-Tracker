@@ -22,7 +22,7 @@ import { ApiService } from './core/api.service';
           Bike<span class="dot">·</span>Tracker
         </a>
         <nav class="nav">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Evolucao</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Evolução</a>
           <a routerLink="/treinador" routerLinkActive="active">Treinador</a>
           <a routerLink="/treinos" routerLinkActive="active">Treinos</a>
           <a routerLink="/bikes" routerLinkActive="active">Garagem</a>
@@ -56,7 +56,7 @@ export class AppComponent {
         this.failed.set(result.failed > 0);
         this.message.set(
           result.imported + ' treino(s) novo(s) importado(s), ' +
-            result.skipped + ' ja estavam no banco' +
+            result.skipped + ' já estavam no banco' +
             (result.failed ? ', ' + result.failed + ' com erro: ' + result.errors.join(' | ') : '.'),
         );
         if (result.imported > 0) {

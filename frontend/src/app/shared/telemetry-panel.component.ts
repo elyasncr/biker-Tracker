@@ -11,7 +11,7 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
   imports: [ChartComponent, DurationPipe, NumPipe],
   template: `
     @if (!analysis?.available) {
-      <div class="notice">{{ analysis?.reason ?? 'Sem dados suficientes para a analise por trechos.' }}</div>
+      <div class="notice">{{ analysis?.reason ?? 'Sem dados suficientes para a análise por trechos.' }}</div>
     } @else {
       <!-- Melhor e pior trecho, lado a lado, como o quadro de setores de uma corrida -->
       <div class="grid cols-2" style="margin-bottom:20px">
@@ -54,18 +54,18 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
       </div>
 
       <p class="footnote">
-        A comparacao e sempre voce contra voce, no mesmo dia: mesmo vento, mesma perna, mesma estrada. Descidas
-        ficam de fora — elas medem a estrada, nao voce. Base usada neste treino: <strong>{{ analysis!.basis }}</strong>.
+        A comparação é sempre você contra você, no mesmo dia: mesmo vento, mesma perna, mesma estrada. Descidas
+        ficam de fora — elas medem a estrada, não você. Base usada neste treino: <strong>{{ analysis!.basis }}</strong>.
         @if (!analysis!.has_hr) {
-          Sem cinta cardiaca, nao ha como medir o custo do esforco — entao a nota mede
-          <strong>resultado</strong>, e vento e semaforo entram na conta junto com a sua perna.
+          Sem cinta cardíaca, não há como medir o custo do esforço — então a nota mede
+          <strong>resultado</strong>, e vento e semáforo entram na conta junto com a sua perna.
         }
       </p>
 
       <!-- Ritmo pelo quarto do pedal -->
       @if (analysis!.pacing.available) {
         <div class="card" style="margin:20px 0">
-          <h2>Gestao de esforco</h2>
+          <h2>Gestão de esforço</h2>
           <p>{{ analysis!.pacing.verdict }}</p>
           <div class="quarters">
             @for (value of analysis!.pacing.quarters ?? []; track $index) {
@@ -83,7 +83,7 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
       @if (analysis!.cadence.available) {
         <div class="grid cols-2" style="margin-bottom:20px">
           <div class="card">
-            <h2>Cadencia</h2>
+            <h2>Cadência</h2>
             <div class="chart-box">
               @if (cadenceChart(); as cfg) { <app-chart [config]="cfg" /> }
             </div>
@@ -92,11 +92,11 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
             <h2>Leitura do giro</h2>
             <div class="grid cols-2" style="gap:12px; margin-bottom:14px">
               <div class="plate">
-                <span class="label">Giro medio</span>
+                <span class="label">Giro médio</span>
                 <span class="value">{{ analysis!.cadence.avg_rpm | num: 0 }}</span><span class="unit">rpm</span>
               </div>
               <div class="plate">
-                <span class="label">Torque medio</span>
+                <span class="label">Torque médio</span>
                 <span class="value">{{ analysis!.cadence.avg_torque_nm | num: 0 }}</span><span class="unit">Nm</span>
               </div>
             </div>
@@ -115,7 +115,7 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
                 </tr>
                 @if (analysis!.cadence.mashing_s > 0) {
                   <tr>
-                    <td>Marcha pesada com forca alta</td>
+                    <td>Marcha pesada com força alta</td>
                     <td class="num mono">{{ analysis!.cadence.mashing_s | duration }}</td>
                   </tr>
                 }
@@ -199,7 +199,7 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
       <!-- Subidas comparadas com o historico -->
       @if (climbs.length) {
         <div class="card" style="margin-bottom:20px">
-          <h2>Suas subidas contra o historico</h2>
+          <h2>Suas subidas contra o histórico</h2>
           @for (climb of climbs; track climb.segment.start_km) {
             <div class="climb">
               <div>
@@ -218,7 +218,7 @@ import { CLIMB, CLIMB_FILL, PULSE, WATT } from '../core/theme';
       <!-- Parciais por km, igual tabela de voltas -->
       @if (analysis!.splits.length) {
         <div class="card">
-          <h2>Parciais por quilometro</h2>
+          <h2>Parciais por quilômetro</h2>
           <div class="chart-box" style="margin-bottom:16px">
             @if (splitChart(); as cfg) { <app-chart [config]="cfg" /> }
           </div>

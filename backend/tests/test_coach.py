@@ -86,7 +86,7 @@ def test_descanso_nunca_e_alarme():
 
 COBRANCA = [
     "deveria", "devia", "falhou", "falhar", "perdeu", "fracasso", "preguica",
-    "desculpa", "vergonha", "abandonou", "desistiu", "atrasado",
+    "preguiça", "desculpa", "vergonha", "abandonou", "desistiu", "atrasado",
 ]
 
 

@@ -53,10 +53,10 @@ async def upload_fit(file: UploadFile = File(...), db: Session = Depends(get_db)
         db.commit()
     except Exception as exc:
         db.rollback()
-        raise HTTPException(422, f"Nao consegui ler o arquivo: {exc}") from exc
+        raise HTTPException(422, f"Não consegui ler o arquivo: {exc}") from exc
 
     if activity is None:
-        return {"status": "duplicado", "message": "Esse treino ja estava importado."}
+        return {"status": "duplicado", "message": "Esse treino já estava importado."}
     return {"status": "importado", "activity_id": activity.id}
 
 
@@ -72,7 +72,7 @@ def igpsport_status():
         "enabled": settings.igpsport_enabled,
         "configured": bool(settings.igpsport_client_id and settings.igpsport_token_url),
         "how_to_apply": "Envie os dados do app para global@igpsport.com "
-        "(nome, logo 120x120, descricao, redirect_url, callback_url, razao social, site).",
+        "(nome, logo 120x120, descrição, redirect_url, callback_url, razão social, site).",
         "docs": "https://www.igpsport.com/support/app/openapi",
     }
 

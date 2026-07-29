@@ -18,7 +18,7 @@ import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
       <div class="card" style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap">
         <div>
           <strong>Subir um .fit agora</strong>
-          <div class="hint">O arquivo vai para a pasta data/ e e importado na hora.</div>
+          <div class="hint">O arquivo vai para a pasta data/ e é importado na hora.</div>
         </div>
         <input type="file" accept=".fit" (change)="upload($event)" style="margin-left:auto" />
       </div>
@@ -42,10 +42,10 @@ import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
                 <th>Bike</th>
                 <th class="num">km</th>
                 <th class="num">Tempo</th>
-                <th class="num">Media</th>
+                <th class="num">Média</th>
                 <th class="num">Subida</th>
-                <th class="num">FC med</th>
-                <th class="num">Pot med</th>
+                <th class="num">FC méd</th>
+                <th class="num">Pot méd</th>
                 <th class="num">NP</th>
                 <th class="num">IF</th>
                 <th class="num">TSS</th>
@@ -60,10 +60,10 @@ import { DurationPipe, NumPipe, RideDatePipe } from '../shared/format.pipe';
                   <td data-label="Bike">{{ ride.bike_name ?? '—' }}</td>
                   <td class="num" data-label="km">{{ ride.distance_km | num: 1 }}</td>
                   <td class="num" data-label="Tempo">{{ ride.moving_time_s | duration }}</td>
-                  <td class="num" data-label="Media">{{ ride.avg_speed_kmh | num: 1 }}</td>
+                  <td class="num" data-label="Média">{{ ride.avg_speed_kmh | num: 1 }}</td>
                   <td class="num" data-label="Subida">{{ ride.elevation_gain_m | num: 0 }}</td>
-                  <td class="num" data-label="FC med">{{ ride.avg_hr | num: 0 }}</td>
-                  <td class="num" data-label="Pot med">{{ ride.avg_power | num: 0 }}</td>
+                  <td class="num" data-label="FC méd">{{ ride.avg_hr | num: 0 }}</td>
+                  <td class="num" data-label="Pot méd">{{ ride.avg_power | num: 0 }}</td>
                   <td class="num" data-label="NP">{{ ride.normalized_power | num: 0 }}</td>
                   <td class="num" data-label="IF">{{ ride.intensity_factor | num: 2 }}</td>
                   <td class="num" data-label="TSS">{{ ride.tss | num: 0 }}</td>
@@ -104,12 +104,12 @@ export class ActivitiesComponent implements OnInit {
     this.api.upload(file).subscribe({
       next: (result) => {
         this.uploadMessage.set(
-          result.status === 'importado' ? 'Treino importado.' : (result.message ?? 'Esse treino ja existia.'),
+          result.status === 'importado' ? 'Treino importado.' : (result.message ?? 'Esse treino já existia.'),
         );
         input.value = '';
         this.load();
       },
-      error: (err) => this.uploadMessage.set('Nao deu para importar: ' + (err.error?.detail ?? 'arquivo invalido')),
+      error: (err) => this.uploadMessage.set('Não deu para importar: ' + (err.error?.detail ?? 'arquivo inválido')),
     });
   }
 

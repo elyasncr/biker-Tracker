@@ -67,12 +67,12 @@ import { GRID, INK, PULSE, WATT, WATT_FILL } from '../core/theme';
         <div class="grid cols-4" style="margin-bottom:20px">
           <div class="plate">
             <span class="value">{{ r.distance_km | num: 1 }}</span><span class="unit">km</span>
-            <span class="label">Distancia</span>
+            <span class="label">Distância</span>
           </div>
           <div class="plate">
             <span class="value">{{ r.moving_time_s | duration }}</span>
             <span class="label">Tempo</span>
-            <div class="foot">media {{ r.avg_speed_kmh | num: 1 }} km/h</div>
+            <div class="foot">média {{ r.avg_speed_kmh | num: 1 }} km/h</div>
           </div>
           <div class="plate climb">
             <span class="value">{{ r.elevation_gain_m | num: 0 }}</span><span class="unit">m</span>
@@ -100,7 +100,7 @@ import { GRID, INK, PULSE, WATT, WATT_FILL } from '../core/theme';
           </div>
           <div class="plate watt">
             <span class="value">{{ r.normalized_power | num: 0 }}</span><span class="unit">W</span>
-            <span class="label">Potencia normalizada</span>
+            <span class="label">Potência normalizada</span>
             <div class="foot">VI {{ r.variability_index | num: 2 }}</div>
           </div>
           <div class="plate">
@@ -112,48 +112,48 @@ import { GRID, INK, PULSE, WATT, WATT_FILL } from '../core/theme';
             <span class="value">{{ r.tss | num: 0 }}</span><span class="unit">TSS</span>
             <span class="label">Carga</span>
             <div class="foot">
-              @if (r.trimp) { TRIMP {{ r.trimp | num: 0 }} } @else { calculada da potencia estimada }
+              @if (r.trimp) { TRIMP {{ r.trimp | num: 0 }} } @else { calculada da potência estimada }
             </div>
           </div>
           <div class="plate">
             <span class="value">{{ r.moving_time_s | duration }}</span>
-            <span class="label">Cronometro</span>
+            <span class="label">Cronômetro</span>
             <div class="foot">tempo total {{ r.duration_s | duration }}</div>
           </div>
           <div class="plate">
             <span class="value">{{ r.max_cadence | num: 0 }}</span><span class="unit">rpm</span>
-            <span class="label">Cadencia maxima</span>
+            <span class="label">Cadência máxima</span>
           </div>
           <div class="plate climb">
             <span class="value">{{ r.grade_up_avg | num: 1 }}</span><span class="unit">%</span>
-            <span class="label">Grau+ med / max</span>
-            <div class="foot">maximo {{ r.grade_up_max | num: 1 }}% · Grau- {{ r.grade_down_avg | num: 1 }}%</div>
+            <span class="label">Grau+ méd / máx</span>
+            <div class="foot">máximo {{ r.grade_up_max | num: 1 }}% · Grau- {{ r.grade_down_avg | num: 1 }}%</div>
           </div>
           <div class="plate climb">
             <span class="value">{{ r.vam_up_avg | num: 0 }}</span><span class="unit">m/h</span>
-            <span class="label">VAM+ med</span>
+            <span class="label">VAM+ méd</span>
             <div class="foot">pico {{ r.vam_up_max | num: 0 }} m/h</div>
           </div>
           <div class="plate climb">
             <span class="value">{{ r.descent_m | num: 0 }}</span><span class="unit">m</span>
-            <span class="label">Declinio cumulativo</span>
+            <span class="label">Declínio cumulativo</span>
             <div class="foot">altitude {{ r.altitude_min | num: 0 }}–{{ r.altitude_max | num: 0 }} m</div>
           </div>
         </div>
 
         @if (r.power_is_estimated) {
           <div class="notice">
-            <strong>A potencia deste treino foi calculada, nao medida.</strong> Sem potenciometro, ela vem da fisica:
-            atrito do pneu, gravidade na subida, arrasto do ar e inercia, a partir da velocidade, da inclinacao e do
-            peso configurado. Erra tipicamente de 10 a 15% contra um potenciometro real, e erra mais com vento forte.
-            Mas erra de forma consistente — entao serve para comparar seus treinos entre si, que e o que interessa
-            aqui. So nao compare com o numero do potenciometro de outra pessoa.
+            <strong>A potência deste treino foi calculada, não medida.</strong> Sem potenciômetro, ela vem da física:
+            atrito do pneu, gravidade na subida, arrasto do ar e inércia, a partir da velocidade, da inclinação e do
+            peso configurado. Erra tipicamente de 10 a 15% contra um potenciômetro real, e erra mais com vento forte.
+            Mas erra de forma consistente — então serve para comparar seus treinos entre si, que é o que interessa
+            aqui. Só não compare com o número do potenciômetro de outra pessoa.
           </div>
         }
 
         <div class="section-head" style="margin-top:32px">
           <h2>Telemetria</h2>
-          <span class="hint">onde voce ganhou e onde perdeu, com o motivo</span>
+          <span class="hint">onde você ganhou e onde perdeu, com o motivo</span>
         </div>
         <app-telemetry [analysis]="analysis()" [climbs]="climbs()" />
 
@@ -167,7 +167,7 @@ import { GRID, INK, PULSE, WATT, WATT_FILL } from '../core/theme';
         <div class="grid cols-2">
           @if (curveConfig(); as cfg) {
             <div class="card">
-              <h2>Curva de potencia deste treino</h2>
+              <h2>Curva de potência deste treino</h2>
               <div class="chart-box"><app-chart [config]="cfg" /></div>
             </div>
           }
@@ -282,7 +282,7 @@ export class ActivityDetailComponent implements OnInit {
     }
     if (streams['power']) {
       datasets.push({
-        label: 'Potencia (W)',
+        label: 'Potência (W)',
         data: streams['power'],
         borderColor: WATT,
         borderWidth: 1,

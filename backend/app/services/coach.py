@@ -73,10 +73,10 @@ def readiness(rides: list[dict], pmc: list[dict], hoje: date) -> dict:
             "state": "sem_historico",
             "severity": SEVERITY,
             "rides_needed": faltam,
-            "headline": "Ainda nao tenho historico pra ler",
+            "headline": "Ainda não tenho histórico pra ler",
             "detail": (
-                f"Faltam {faltam} pedal(is) pra eu conseguir dizer alguma coisa util sobre "
-                f"hoje. Ate la, o melhor conselho e simples: pedale no ritmo que der pra "
+                f"Faltam {faltam} pedal(is) pra eu conseguir dizer alguma coisa útil sobre "
+                f"hoje. Até lá, o melhor conselho é simples: pedale no ritmo que der pra "
                 f"conversar, e volte aqui quando tiver mais alguns treinos no banco."
             ),
         }
@@ -89,8 +89,8 @@ def readiness(rides: list[dict], pmc: list[dict], hoje: date) -> dict:
             "rides_needed": 0,
             "headline": "Vale uma folga hoje",
             "detail": (
-                f"Sao {seguidos} dias seguidos na sela. O ganho de um treino acontece no "
-                f"descanso depois dele, nao durante - um dia parado agora rende mais que "
+                f"São {seguidos} dias seguidos na sela. O ganho de um treino acontece no "
+                f"descanso depois dele, não durante - um dia parado agora rende mais que "
                 f"um dia pedalado."
             ),
         }
@@ -103,8 +103,8 @@ def readiness(rides: list[dict], pmc: list[dict], hoje: date) -> dict:
             "rides_needed": 0,
             "headline": "Hoje, leve",
             "detail": (
-                "Sua carga subiu rapido nos ultimos dias e ainda esta subindo. Nao e caso "
-                "de parar, e caso de pedalar curto e tranquilo."
+                "Sua carga subiu rápido nos últimos dias e ainda está subindo. Não é caso "
+                "de parar, é caso de pedalar curto e tranquilo."
             ),
         }
 
@@ -117,8 +117,8 @@ def readiness(rides: list[dict], pmc: list[dict], hoje: date) -> dict:
             "rides_needed": 0,
             "headline": "Bom dia pra voltar",
             "detail": (
-                f"Seu ultimo pedal foi ha {parado} dias. Nao precisa ser longo nem rapido - "
-                f"sair e voltar ja recoloca o habito no lugar."
+                f"Seu último pedal foi há {parado} dias. Não precisa ser longo nem rápido - "
+                f"sair e voltar já recoloca o hábito no lugar."
             ),
         }
 
@@ -127,7 +127,7 @@ def readiness(rides: list[dict], pmc: list[dict], hoje: date) -> dict:
         "severity": SEVERITY,
         "rides_needed": 0,
         "headline": "Dia livre",
-        "detail": "Nada no seu historico recente pede cautela hoje.",
+        "detail": "Nada no seu histórico recente pede cautela hoje.",
     }
 
 
@@ -158,7 +158,7 @@ def prescription(readiness: dict, goal: dict, week: dict, recent: dict) -> dict:
             "kind": "folga",
             "minutes": None,
             "zone": None,
-            "headline": "Hoje e dia de descanso",
+            "headline": "Hoje é dia de descanso",
             "detail": readiness["detail"],
         }
 
@@ -171,11 +171,11 @@ def prescription(readiness: dict, goal: dict, week: dict, recent: dict) -> dict:
             "kind": "bonus",
             "minutes": minutos,
             "zone": ZONE,
-            "headline": f"Meta da semana batida - {minutos} min de bonus, se quiser",
+            "headline": f"Meta da semana batida - {minutos} min de bônus, se quiser",
             "detail": (
-                f"Voce ja fechou os {goal['rides_per_week']} pedais e os "
-                f"{goal['minutes_per_week']} minutos. O que vier agora e lucro: "
-                f"va no {PACE}, ou fique em casa com a consciencia tranquila."
+                f"Você já fechou os {goal['rides_per_week']} pedais e os "
+                f"{goal['minutes_per_week']} minutos. O que vier agora é lucro: "
+                f"vá no {PACE}, ou fique em casa com a consciência tranquila."
             ),
         }
 
@@ -190,7 +190,7 @@ def prescription(readiness: dict, goal: dict, week: dict, recent: dict) -> dict:
     else:
         detalhe = (
             f"Faltam {faltam_min:.0f} min pra fechar sua semana. Este pedal no {PACE} - "
-            f"aquele em que voce consegue falar frases inteiras sem perder o folego - "
+            f"aquele em que você consegue falar frases inteiras sem perder o fôlego - "
             f"resolve boa parte."
         )
 
@@ -241,9 +241,9 @@ def suggest_goal(goal: dict, weeks: list[dict]) -> dict | None:
         "minutes_per_week": int(round(sugerido)),
         "rides_per_week": goal["rides_per_week"],
         "reason": (
-            f"Voce vem fechando a meta e ficou numa media de {media:.0f} min por semana. "
-            f"Se quiser, da pra subir pra {sugerido:.0f} min sem apertar - mas so se "
-            f"parecer natural. A meta e sua."
+            f"Você vem fechando a meta e ficou numa média de {media:.0f} min por semana. "
+            f"Se quiser, dá pra subir pra {sugerido:.0f} min sem apertar - mas só se "
+            f"parecer natural. A meta é sua."
         ),
     }
 

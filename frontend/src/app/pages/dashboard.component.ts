@@ -22,13 +22,13 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
           Exporte os pedais do app iGPSPORT em <code>.fit</code> e solte os arquivos na pasta
           <code>{{ settings()?.data_dir }}</code>.
         </p>
-        <p>Depois clique em "Ler pasta data/" aqui em cima. Duplicados sao ignorados pelo hash do arquivo.</p>
+        <p>Depois clique em "Ler pasta data/" aqui em cima. Duplicados são ignorados pelo hash do arquivo.</p>
       </div>
     } @else {
       <!-- Placas de numero: o total da janela escolhida -->
       <section class="section">
         <div class="section-head">
-          <h1>Evolucao</h1>
+          <h1>Evolução</h1>
           <div class="chips">
             @for (option of windows; track option.days) {
               <button class="chip" [class.active]="window() === option.days" (click)="setWindow(option.days)">
@@ -36,12 +36,12 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
               </button>
             }
           </div>
-          <span class="hint">FTP {{ settings()?.ftp_watts }} W · FC max {{ settings()?.hr_max }}</span>
+          <span class="hint">FTP {{ settings()?.ftp_watts }} W · FC máx {{ settings()?.hr_max }}</span>
         </div>
 
         <div class="grid cols-4">
           <div class="plate">
-            <span class="label">Distancia</span>
+            <span class="label">Distância</span>
             <span class="value">{{ totals()?.distance_km | num: 0 }}</span><span class="unit">km</span>
             <div class="foot">{{ totals()?.activities }} pedais</div>
           </div>
@@ -53,12 +53,12 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
           <div class="plate">
             <span class="label">Tempo em movimento</span>
             <span class="value">{{ totals()?.moving_time_h | num: 1 }}</span><span class="unit">h</span>
-            <div class="foot">media {{ totals()?.avg_speed_kmh | num: 1 }} km/h</div>
+            <div class="foot">média {{ totals()?.avg_speed_kmh | num: 1 }} km/h</div>
           </div>
           <div class="plate watt">
             <span class="label">Carga (TSS)</span>
             <span class="value">{{ totals()?.tss | num: 0 }}</span>
-            <div class="foot">soma do periodo</div>
+            <div class="foot">soma do período</div>
           </div>
         </div>
       </section>
@@ -69,7 +69,7 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
           <h2>Volume</h2>
           <div class="chips">
             <button class="chip" [class.active]="groupBy() === 'week'" (click)="setGroup('week')">Semana</button>
-            <button class="chip" [class.active]="groupBy() === 'month'" (click)="setGroup('month')">Mes</button>
+            <button class="chip" [class.active]="groupBy() === 'month'" (click)="setGroup('month')">Mês</button>
           </div>
           <span class="hint">barras = km · linha = carga</span>
         </div>
@@ -99,13 +99,13 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
       <div class="grid cols-2">
         <!-- Curva de potencia -->
         <section class="card">
-          <h2>Melhores esforcos</h2>
+          <h2>Melhores esforços</h2>
           @if (hasPower()) {
             <div class="chart-box">
               @if (powerConfig(); as cfg) { <app-chart [config]="cfg" /> }
             </div>
           } @else {
-            <p class="hint">Sem dados de potencia nos arquivos. A evolucao esta sendo medida por FC e velocidade.</p>
+            <p class="hint">Sem dados de potência nos arquivos. A evolução está sendo medida por FC e velocidade.</p>
           }
         </section>
 
@@ -135,7 +135,7 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
       <!-- Ultimos pedais -->
       <section class="section">
         <div class="section-head">
-          <h2>Ultimos pedais</h2>
+          <h2>Últimos pedais</h2>
           <a class="hint" routerLink="/treinos">ver todos →</a>
         </div>
         <div class="card">
@@ -145,7 +145,7 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
                 <th>Data</th>
                 <th class="num">km</th>
                 <th class="num">Tempo</th>
-                <th class="num">Media</th>
+                <th class="num">Média</th>
                 <th class="num">Subida</th>
                 <th class="num">FC</th>
                 <th class="num">NP</th>
@@ -158,7 +158,7 @@ import { CLIMB, GRID, INK, INK_FILL, PULSE, WATT, WATT_FILL } from '../core/them
                   <td data-label="Data">{{ ride.started_at | rideDate }}</td>
                   <td class="num" data-label="km">{{ ride.distance_km | num: 1 }}</td>
                   <td class="num" data-label="Tempo">{{ ride.moving_time_s | duration }}</td>
-                  <td class="num" data-label="Media">{{ ride.avg_speed_kmh | num: 1 }}</td>
+                  <td class="num" data-label="Média">{{ ride.avg_speed_kmh | num: 1 }}</td>
                   <td class="num" data-label="Subida">{{ ride.elevation_gain_m | num: 0 }}</td>
                   <td class="num" data-label="FC">{{ ride.avg_hr | num: 0 }}</td>
                   <td class="num" data-label="NP">{{ ride.normalized_power | num: 0 }}</td>
@@ -254,7 +254,7 @@ export class DashboardComponent implements OnInit {
         datasets: [
           {
             type: 'bar',
-            label: 'Distancia (km)',
+            label: 'Distância (km)',
             data: points.map((p) => p.distance_km),
             backgroundColor: INK,
             borderRadius: 2,
@@ -340,7 +340,7 @@ export class DashboardComponent implements OnInit {
         labels: points.map((p) => this.shortDuration(p.seconds)),
         datasets: [
           {
-            label: 'Melhor potencia media (W)',
+            label: 'Melhor potência média (W)',
             data: points.map((p) => p.watts),
             borderColor: WATT,
             backgroundColor: WATT_FILL,
@@ -355,7 +355,7 @@ export class DashboardComponent implements OnInit {
       options: {
         scales: {
           y: { grid: { color: GRID }, title: { display: true, text: 'watts' } },
-          x: { grid: { display: false }, title: { display: true, text: 'duracao do esforco' } },
+          x: { grid: { display: false }, title: { display: true, text: 'duração do esforço' } },
         },
         plugins: { legend: { display: false } },
       },
@@ -393,8 +393,8 @@ export class DashboardComponent implements OnInit {
     const map: { key: string; label: string; unit: string; digits: number }[] = [
       { key: 'longest_distance_km', label: 'Pedal mais longo', unit: 'km', digits: 1 },
       { key: 'biggest_climb_m', label: 'Mais altimetria', unit: 'm', digits: 0 },
-      { key: 'fastest_avg_kmh', label: 'Media mais rapida', unit: 'km/h', digits: 1 },
-      { key: 'top_speed_kmh', label: 'Velocidade maxima', unit: 'km/h', digits: 1 },
+      { key: 'fastest_avg_kmh', label: 'Média mais rápida', unit: 'km/h', digits: 1 },
+      { key: 'top_speed_kmh', label: 'Velocidade máxima', unit: 'km/h', digits: 1 },
       { key: 'best_normalized_power', label: 'Melhor NP', unit: 'W', digits: 0 },
       { key: 'hardest_tss', label: 'Treino mais duro', unit: 'TSS', digits: 0 },
     ];

@@ -17,20 +17,20 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
       </div>
 
       <div class="notice">
-        <strong>Como o sistema sabe qual bike voce usou.</strong> Cada sensor grava um numero de radio unico dentro
-        do .fit. Se os sensores moram numa bike so, esse conjunto identifica a bike e o reconhecimento vira
-        automatico: voce nomeia uma vez e os treinos antigos ganham dono junto.
+        <strong>Como o sistema sabe qual bike você usou.</strong> Cada sensor grava um número de rádio único dentro
+        do .fit. Se os sensores moram numa bike só, esse conjunto identifica a bike e o reconhecimento vira
+        automático: você nomeia uma vez e os treinos antigos ganham dono junto.
         <br /><br />
-        Se voce passa os mesmos sensores de uma bike para outra, a assinatura identifica os sensores, nao a bike.
+        Se você passa os mesmos sensores de uma bike para outra, a assinatura identifica os sensores, não a bike.
         O sistema percebe isso sozinho no momento em que a mesma assinatura for reivindicada por duas bikes: ele
-        desliga o palpite automatico para elas e passa a pedir atribuicao manual. Errar em silencio seria pior do
-        que perguntar. Para esse caso existe a <strong>atribuicao por periodo</strong> logo abaixo, que resolve
-        varios pedais de uma vez.
+        desliga o palpite automático para elas e passa a pedir atribuição manual. Errar em silêncio seria pior do
+        que perguntar. Para esse caso existe a <strong>atribuição por período</strong> logo abaixo, que resolve
+        vários pedais de uma vez.
       </div>
 
       <div class="notice">
-        <strong>Por que o peso e o tipo importam.</strong> Sem potenciometro, a potencia dos seus treinos e calculada
-        pela fisica — e peso, pneu e postura entram direto na conta. Uma MTB de 13 kg com pneu cravado gasta bem mais
+        <strong>Por que o peso e o tipo importam.</strong> Sem potenciômetro, a potência dos seus treinos é calculada
+        pela física — e peso, pneu e postura entram direto na conta. Uma MTB de 13 kg com pneu cravado gasta bem mais
         watt que uma speed de 8 kg na mesma velocidade. Preencher esses campos deixa a estimativa mais honesta.
       </div>
 
@@ -40,7 +40,7 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
             <article class="card bike">
               <header>
                 <span class="eyebrow">{{ bike.kind }}</span>
-                @if (bike.is_default) { <span class="badge">padrao</span> }
+                @if (bike.is_default) { <span class="badge">padrão</span> }
               </header>
               <h2>{{ bike.name }}</h2>
               <p class="context">
@@ -70,7 +70,7 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
               </div>
 
               <p class="hint">
-                @if (bike.stats.last_ride) { Ultimo uso: {{ bike.stats.last_ride | rideDate: false }}. }
+                @if (bike.stats.last_ride) { Último uso: {{ bike.stats.last_ride | rideDate: false }}. }
                 @if (bike.signatures.length) {
                   Reconhece sozinha por {{ bike.signatures.length }} conjunto(s) de sensores.
                 } @else {
@@ -107,11 +107,11 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
           <label>Peso (kg)<input type="number" step="0.1" [(ngModel)]="draft.weight_kg" /></label>
           <label>
             Crr (atrito do pneu)
-            <input type="number" step="0.001" [(ngModel)]="draft.crr" placeholder="automatico pelo tipo" />
+            <input type="number" step="0.001" [(ngModel)]="draft.crr" placeholder="automático pelo tipo" />
           </label>
           <label>
             CdA (arrasto do ar)
-            <input type="number" step="0.01" [(ngModel)]="draft.cda" placeholder="automatico pelo tipo" />
+            <input type="number" step="0.01" [(ngModel)]="draft.cda" placeholder="automático pelo tipo" />
           </label>
           <label>
             Coroa
@@ -178,10 +178,10 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
       <!-- Atribuicao por periodo -->
       @if (bikes().length) {
         <div class="card" style="margin-bottom:20px">
-          <h2>Atribuir um periodo inteiro</h2>
+          <h2>Atribuir um período inteiro</h2>
           <p class="hint">
-            Quando os sensores viajam entre bikes, sua memoria e o dado mais confiavel — e ela funciona por periodo,
-            nao pedal por pedal.
+            Quando os sensores viajam entre bikes, sua memória é o dado mais confiável — e ela funciona por período,
+            não pedal por pedal.
           </p>
           <div class="range">
             <label>De<input type="date" [(ngModel)]="rangeStart" /></label>
@@ -194,7 +194,7 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
                 }
               </select>
             </label>
-            <button class="btn" (click)="applyRange()" [disabled]="!rangeStart || !rangeEnd">Atribuir periodo</button>
+            <button class="btn" (click)="applyRange()" [disabled]="!rangeStart || !rangeEnd">Atribuir período</button>
           </div>
         </div>
       }
@@ -203,8 +203,8 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
       <div class="section-head"><h2>Treinos sem bike</h2></div>
       @if (!groups().length) {
         <div class="empty">
-          <h2>Todos os pedais tem dono</h2>
-          <p>Nenhum treino esperando identificacao.</p>
+          <h2>Todos os pedais têm dono</h2>
+          <p>Nenhum treino esperando identificação.</p>
         </div>
       } @else {
         @for (group of groups(); track group.signature) {
@@ -216,7 +216,7 @@ import { NumPipe, RideDatePipe } from '../shared/format.pipe';
                   @if (group.signature) {
                     sensores {{ group.signature }} — atribuir um resolve o grupo inteiro
                   } @else {
-                    sem sensores no arquivo — a deteccao automatica nao funciona aqui
+                    sem sensores no arquivo — a detecção automática não funciona aqui
                   }
                 </span>
               </div>

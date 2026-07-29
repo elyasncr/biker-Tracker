@@ -34,14 +34,14 @@ class BikeInput(BaseModel):
     @classmethod
     def _coroas_validas(cls, v):
         if v is not None and not all(20 <= d <= 60 for d in v):
-            raise ValueError("Coroa fora da faixa util (20 a 60 dentes)")
+            raise ValueError("Coroa fora da faixa útil (20 a 60 dentes)")
         return sorted(v, reverse=True) if v else v
 
     @field_validator("cassette")
     @classmethod
     def _cogs_validos(cls, v):
         if v is not None and not all(9 <= d <= 52 for d in v):
-            raise ValueError("Cog fora da faixa util (9 a 52 dentes)")
+            raise ValueError("Cog fora da faixa útil (9 a 52 dentes)")
         return sorted(v) if v else v
 
     @field_validator("wheel_circumference_mm")
@@ -50,7 +50,7 @@ class BikeInput(BaseModel):
         # Faixa util: 1000 mm cobre roda de 16", 2400 cobre 29" com pneu gordo.
         # Fora disso o mapa de marchas inteiro sai deslocado, sem aviso nenhum.
         if v is not None and not 1000 <= v <= 2400:
-            raise ValueError("Circunferencia fora da faixa util (1000 a 2400 mm)")
+            raise ValueError("Circunferência fora da faixa útil (1000 a 2400 mm)")
         return v
 
 
@@ -114,7 +114,7 @@ def create_bike(payload: BikeInput, db: Session = Depends(get_db)):
 def update_bike(bike_id: int, payload: BikeUpdate, db: Session = Depends(get_db)):
     bike = db.get(Bike, bike_id)
     if bike is None:
-        raise HTTPException(404, "Bike nao encontrada")
+        raise HTTPException(404, "Bike não encontrada")
 
     # exclude_unset e o coracao do conserto: so grava o que o cliente REALMENTE
     # mandou. Sem ele, todo campo ausente vira None e o setattr apaga o que ja
@@ -136,7 +136,7 @@ def update_bike(bike_id: int, payload: BikeUpdate, db: Session = Depends(get_db)
 def delete_bike(bike_id: int, db: Session = Depends(get_db)):
     bike = db.get(Bike, bike_id)
     if bike is None:
-        raise HTTPException(404, "Bike nao encontrada")
+        raise HTTPException(404, "Bike não encontrada")
     for ride in db.scalars(select(Activity).where(Activity.bike_id == bike_id)):
         ride.bike_id = None
     db.delete(bike)
@@ -153,24 +153,24 @@ def claim_activity(bike_id: int, activity_id: int, db: Session = Depends(get_db)
     bike = db.get(Bike, bike_id)
     activity = db.get(Activity, activity_id)
     if bike is None or activity is None:
-        raise HTTPException(404, "Bike ou treino nao encontrado")
+        raise HTTPException(404, "Bike ou treino não encontrado")
 
     adopted, conflict = bike_service.assign_and_learn(db, activity, bike)
 
     if conflict:
         message = (
-            f"Treino atribuido a {bike.name}. Esses mesmos sensores ja pertencem a outra bike, entao eles "
-            f"viajam entre as duas — a deteccao automatica foi desligada para eles. Use a atribuicao por "
-            f"periodo para os proximos, que resolve varios de uma vez."
+            f"Treino atribuído a {bike.name}. Esses mesmos sensores já pertencem a outra bike, então eles "
+            f"viajam entre as duas — a detecção automática foi desligada para eles. Use a atribuição por "
+            f"período para os próximos, que resolve vários de uma vez."
         )
     elif adopted:
-        message = f"{adopted} treino(s) com os mesmos sensores tambem foram atribuidos a {bike.name}."
+        message = f"{adopted} treino(s) com os mesmos sensores também foram atribuídos a {bike.name}."
     elif activity.sensor_signature:
-        message = f"Treino atribuido a {bike.name}."
+        message = f"Treino atribuído a {bike.name}."
     else:
         message = (
-            f"Treino atribuido a {bike.name}. Esse .fit nao trouxe sensores, entao nao ha como reconhecer "
-            f"sozinho — marque uma bike como padrao se a maioria dos pedais for nela."
+            f"Treino atribuído a {bike.name}. Esse .fit não trouxe sensores, então não há como reconhecer "
+            f"sozinho — marque uma bike como padrão se a maioria dos pedais for nela."
         )
 
     return {
@@ -188,9 +188,9 @@ def assign_range(bike_id: int, start: datetime, end: datetime, db: Session = Dep
     """Atribui todos os treinos de um periodo a uma bike."""
     bike = db.get(Bike, bike_id)
     if bike is None:
-        raise HTTPException(404, "Bike nao encontrada")
+        raise HTTPException(404, "Bike não encontrada")
     count = bike_service.assign_range(db, bike, start, end)
-    return {"assigned": count, "message": f"{count} treino(s) atribuido(s) a {bike.name}."}
+    return {"assigned": count, "message": f"{count} treino(s) atribuído(s) a {bike.name}."}
 
 
 @router.get("/unassigned")

@@ -15,9 +15,9 @@ def activity_analysis(activity_id: int, db: Session = Depends(get_db)):
     """Telemetria do pedal: melhor e pior trecho, com o motivo de cada um."""
     activity = db.get(Activity, activity_id)
     if activity is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
     if activity.stream is None:
-        raise HTTPException(422, "Esse treino nao tem serie temporal guardada.")
+        raise HTTPException(422, "Esse treino não tem série temporal guardada.")
 
     settings = get_settings()
     payload = activity.stream.payload
@@ -50,9 +50,9 @@ def activity_route(activity_id: int, db: Session = Depends(get_db)):
     """Coordenadas do trajeto para o mapa, com as metricas ponto a ponto."""
     activity = db.get(Activity, activity_id)
     if activity is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
     if activity.stream is None:
-        raise HTTPException(422, "Sem serie temporal.")
+        raise HTTPException(422, "Sem série temporal.")
 
     payload = activity.stream.payload
     lat = payload.get("lat") or []
@@ -60,7 +60,7 @@ def activity_route(activity_id: int, db: Session = Depends(get_db)):
     if not lat or not lon:
         return {
             "available": False,
-            "reason": "Esse .fit nao tem GPS. Treino de rolo ou ciclocomputador sem sinal costumam ficar assim.",
+            "reason": "Esse .fit não tem GPS. Treino de rolo ou ciclocomputador sem sinal costumam ficar assim.",
         }
 
     points = []
@@ -103,7 +103,7 @@ def similar_segments(activity_id: int, radius_m: int = 150, db: Session = Depend
     """
     activity = db.get(Activity, activity_id)
     if activity is None or activity.stream is None:
-        raise HTTPException(404, "Treino nao encontrado")
+        raise HTTPException(404, "Treino não encontrado")
 
     settings = get_settings()
     current = analysis.analyze(activity.stream.payload, settings.ftp_watts)
@@ -160,7 +160,7 @@ def similar_segments(activity_id: int, radius_m: int = 150, db: Session = Depend
 
 def _climb_verdict(delta_s: float, best_date: str) -> str:
     if delta_s < -3:
-        return f"Recorde novo: {abs(delta_s):.0f}s mais rapido do que seu melhor tempo aqui."
+        return f"Recorde novo: {abs(delta_s):.0f}s mais rápido do que seu melhor tempo aqui."
     if delta_s > 3:
         return f"{delta_s:.0f}s mais lento que seu melhor tempo nesta subida, feito em {best_date}."
     return "Praticamente empatado com seu melhor tempo nesta subida."

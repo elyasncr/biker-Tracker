@@ -21,9 +21,9 @@ interface Ramp {
 
 const RAMPS: Record<MapMetric, Ramp> = {
   speed: { label: 'Velocidade', unit: 'km/h', colors: [...MAP_RAMPS.speed] },
-  power: { label: 'Potencia', unit: 'W', colors: [...MAP_RAMPS.power] },
-  hr: { label: 'Frequencia cardiaca', unit: 'bpm', colors: [...MAP_RAMPS.hr] },
-  cadence: { label: 'Cadencia', unit: 'rpm', colors: [...MAP_RAMPS.cadence] },
+  power: { label: 'Potência', unit: 'W', colors: [...MAP_RAMPS.power] },
+  hr: { label: 'Frequência cardíaca', unit: 'bpm', colors: [...MAP_RAMPS.hr] },
+  cadence: { label: 'Cadência', unit: 'rpm', colors: [...MAP_RAMPS.cadence] },
   altitude: { label: 'Altitude', unit: 'm', colors: [...MAP_RAMPS.altitude] },
 };
 

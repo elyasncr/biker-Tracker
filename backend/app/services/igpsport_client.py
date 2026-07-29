@@ -35,8 +35,8 @@ def _require_config():
     settings = get_settings()
     if not settings.igpsport_enabled:
         raise IgpsportNotConfigured(
-            "Integracao iGPSPORT desligada. Ative IGPSPORT_ENABLED no .env depois "
-            "que sua aplicacao for aprovada por global@igpsport.com."
+            "Integração iGPSPORT desligada. Ative IGPSPORT_ENABLED no .env depois "
+            "que sua aplicação for aprovada por global@igpsport.com."
         )
     missing = [
         name
@@ -50,7 +50,7 @@ def _require_config():
         if not value
     ]
     if missing:
-        raise IgpsportNotConfigured(f"Faltam variaveis no .env: {', '.join(missing)}")
+        raise IgpsportNotConfigured(f"Faltam variáveis no .env: {', '.join(missing)}")
     return settings
 
 
@@ -90,7 +90,7 @@ async def refresh(db: Session) -> OAuthToken:
     settings = _require_config()
     token = db.scalar(select(OAuthToken).where(OAuthToken.provider == "igpsport"))
     if not token or not token.refresh_token:
-        raise IgpsportNotConfigured("Nenhum refresh_token guardado. Refaca a autorizacao.")
+        raise IgpsportNotConfigured("Nenhum refresh_token guardado. Refaça a autorização.")
     async with httpx.AsyncClient(timeout=20) as client:
         response = await client.post(
             settings.igpsport_token_url,

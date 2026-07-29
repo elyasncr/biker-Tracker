@@ -191,7 +191,7 @@ def parse_fit(path: Path) -> ParsedActivity:
     timestamps = [r["t"] for r in records if isinstance(r.get("t"), datetime)]
     started_at = session.get("start_time") or (timestamps[0] if timestamps else None)
     if started_at is None:
-        raise ValueError("Nao foi possivel determinar a data do treino")
+        raise ValueError("Não foi possível determinar a data do treino")
     if isinstance(started_at, datetime) and started_at.tzinfo is not None:
         started_at = started_at.astimezone(timezone.utc).replace(tzinfo=None)
 

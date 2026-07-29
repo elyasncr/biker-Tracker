@@ -315,32 +315,32 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
         if delta <= -8:
             reasons.append(
                 {
-                    "kind": "cadencia",
+                    "kind": "cadência",
                     "positive": False,
                     "impact": abs(delta),
-                    "text": f"Cadencia caiu para {cad:.0f} rpm, {abs(delta):.0f} abaixo do seu padrao de "
-                    f"{base_cad:.0f}. Voce ficou pesado na marcha: mais forca por pedalada, mais desgaste "
+                    "text": f"Cadência caiu para {cad:.0f} rpm, {abs(delta):.0f} abaixo do seu padrão de "
+                    f"{base_cad:.0f}. Você ficou pesado na marcha: mais força por pedalada, mais desgaste "
                     f"muscular e mais carga no joelho para andar o mesmo tanto.",
                 }
             )
         elif delta >= 8:
             reasons.append(
                 {
-                    "kind": "cadencia",
+                    "kind": "cadência",
                     "positive": True,
                     "impact": delta,
-                    "text": f"Girou mais leve aqui: {cad:.0f} rpm contra {base_cad:.0f} do seu padrao. "
-                    f"Cadencia alta joga o esforco para o sistema cardiovascular e poupa a perna.",
+                    "text": f"Girou mais leve aqui: {cad:.0f} rpm contra {base_cad:.0f} do seu padrão. "
+                    f"Cadência alta joga o esforço para o sistema cardiovascular e poupa a perna.",
                 }
             )
         elif segment["terrain"] == "subida" and abs(delta) < 5:
             reasons.append(
                 {
-                    "kind": "cadencia",
+                    "kind": "cadência",
                     "positive": True,
                     "impact": 6,
-                    "text": f"Cadencia manteve {cad:.0f} rpm mesmo com {segment['gradient']:.1f}% de inclinacao. "
-                    f"Segurar o giro na subida e sinal de marcha bem escolhida.",
+                    "text": f"Cadência manteve {cad:.0f} rpm mesmo com {segment['gradient']:.1f}% de inclinação. "
+                    f"Segurar o giro na subida é sinal de marcha bem escolhida.",
                 }
             )
 
@@ -355,18 +355,18 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
             if hr_delta > 4 and power_delta_pct < -5:
                 reasons.append(
                     {
-                        "kind": "eficiencia",
+                        "kind": "eficiência",
                         "positive": False,
                         "impact": abs(power_delta_pct) + hr_delta,
-                        "text": f"Coracao a {hr:.0f} bpm ({hr_delta:+.0f} do normal) entregando so {power:.0f} W "
-                        f"({power_delta_pct:.0f}%). Mais custo por menos resultado: e a assinatura de fadiga, "
-                        f"calor ou desidratacao.",
+                        "text": f"Coração a {hr:.0f} bpm ({hr_delta:+.0f} do normal) entregando só {power:.0f} W "
+                        f"({power_delta_pct:.0f}%). Mais custo por menos resultado: é a assinatura de fadiga, "
+                        f"calor ou desidratação.",
                     }
                 )
             elif hr_delta < -3 and power_delta_pct > 5:
                 reasons.append(
                     {
-                        "kind": "eficiencia",
+                        "kind": "eficiência",
                         "positive": True,
                         "impact": power_delta_pct + abs(hr_delta),
                         "text": f"{power:.0f} W a apenas {hr:.0f} bpm: {power / hr:.2f} W por batimento, seu melhor "
@@ -376,30 +376,30 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
             elif power_delta_pct > 12:
                 reasons.append(
                     {
-                        "kind": "potencia",
+                        "kind": "potência",
                         "positive": True,
                         "impact": power_delta_pct,
-                        "text": f"Potencia {power_delta_pct:.0f}% acima da media do treino ({power:.0f} W contra "
+                        "text": f"Potência {power_delta_pct:.0f}% acima da média do treino ({power:.0f} W contra "
                         f"{base_power:.0f} W).",
                     }
                 )
             elif power_delta_pct < -12:
                 reasons.append(
                     {
-                        "kind": "potencia",
+                        "kind": "potência",
                         "positive": False,
                         "impact": abs(power_delta_pct),
-                        "text": f"Potencia {abs(power_delta_pct):.0f}% abaixo da media ({power:.0f} W contra "
+                        "text": f"Potência {abs(power_delta_pct):.0f}% abaixo da média ({power:.0f} W contra "
                         f"{base_power:.0f} W).",
                     }
                 )
         elif hr_delta > 6:
             reasons.append(
                 {
-                    "kind": "esforco",
+                    "kind": "esforço",
                     "positive": False,
                     "impact": hr_delta,
-                    "text": f"FC {hr:.0f} bpm, {hr_delta:.0f} acima da media do pedal. Custou caro.",
+                    "text": f"FC {hr:.0f} bpm, {hr_delta:.0f} acima da média do pedal. Custou caro.",
                 }
             )
 
@@ -410,8 +410,8 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "kind": "ritmo",
                 "positive": False,
                 "impact": (vi - 1) * 60,
-                "text": f"Ritmo picado: variabilidade {vi:.2f}. Voce alternou socos e alivios em vez de manter "
-                f"pressao constante, e isso queima glicogenio mais rapido do que o ritmo medio sugere.",
+                "text": f"Ritmo picado: variabilidade {vi:.2f}. Você alternou socos e alívios em vez de manter "
+                f"pressão constante, e isso queima glicogênio mais rápido do que o ritmo médio sugere.",
             }
         )
     elif vi and vi < 1.06 and is_best:
@@ -420,7 +420,7 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "kind": "ritmo",
                 "positive": True,
                 "impact": 10,
-                "text": f"Potencia lisa, variabilidade {vi:.2f}. Ritmo constante e o jeito mais barato de "
+                "text": f"Potência lisa, variabilidade {vi:.2f}. Ritmo constante é o jeito mais barato de "
                 f"atravessar um trecho.",
             }
         )
@@ -432,8 +432,8 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "kind": "barriga",
                 "positive": False,
                 "impact": coasting * 100,
-                "text": f"{coasting * 100:.0f}% do trecho sem pedalar, em terreno que nao era descida. "
-                f"Cada segundo de barriga em plano e velocidade que voce devolve de graca.",
+                "text": f"{coasting * 100:.0f}% do trecho sem pedalar, em terreno que não era descida. "
+                f"Cada segundo de barriga em plano é velocidade que você devolve de graça.",
             }
         )
 
@@ -449,7 +449,7 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                         "positive": vam_delta > 0,
                         "impact": abs(vam_delta),
                         "text": f"VAM de {segment['vam']:.0f} m/h, {abs(vam_delta):.0f}% {direction} das suas "
-                        f"outras subidas do dia (inclinacao media de {segment['gradient']:.1f}%).",
+                        f"outras subidas do dia (inclinação média de {segment['gradient']:.1f}%).",
                     }
                 )
 
@@ -459,9 +459,9 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "kind": "fadiga",
                 "positive": False,
                 "impact": baseline["decoupling"],
-                "text": f"Aconteceu nos ultimos 30% do pedal, quando sua eficiencia ja tinha caido "
-                f"{baseline['decoupling']:.0f}% em relacao ao inicio. Boa parte disso e cansaco acumulado, "
-                f"nao o trecho em si.",
+                "text": f"Aconteceu nos últimos 30% do pedal, quando sua eficiência já tinha caído "
+                f"{baseline['decoupling']:.0f}% em relação ao início. Boa parte disso é cansaço acumulado, "
+                f"não o trecho em si.",
             }
         )
 
@@ -472,7 +472,7 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "kind": "torque",
                 "positive": False,
                 "impact": torque / 2,
-                "text": f"Torque de {torque:.0f} Nm a {cad:.0f} rpm. Forca alta com giro baixo e o padrao que mais "
+                "text": f"Torque de {torque:.0f} Nm a {cad:.0f} rpm. Força alta com giro baixo é o padrão que mais "
                 f"castiga joelho ao longo das semanas.",
             }
         )
@@ -487,8 +487,8 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                     "kind": "velocidade",
                     "positive": speed_delta > 0,
                     "impact": abs(speed_delta),
-                    "text": f"Velocidade media de {speed:.1f} km/h, {abs(speed_delta):.0f}% "
-                    f"{'acima' if speed_delta > 0 else 'abaixo'} da media do pedal.",
+                    "text": f"Velocidade média de {speed:.1f} km/h, {abs(speed_delta):.0f}% "
+                    f"{'acima' if speed_delta > 0 else 'abaixo'} da média do pedal.",
                 }
             )
 
@@ -509,7 +509,7 @@ def explain(segment: dict, baseline: dict, ride_position: float, is_best: bool) 
                 "text": (
                     f"Trecho de {segment['distance_m']:.0f} m em {terrain}, percorrido a "
                     f"{segment.get('avg_speed_kmh') or 0:.1f} km/h. Os indicadores desse trecho ficaram "
-                    f"perto da sua media do dia, sem um fator isolado que explique a diferenca."
+                    f"perto da sua média do dia, sem um fator isolado que explique a diferença."
                 ),
             }
         ]
@@ -565,9 +565,9 @@ def analyze(streams: dict, ftp: int, sample_rate_s: float | None = None) -> dict
     if has_power and has_hr:
         basis = "watt por batimento"
     elif has_hr:
-        basis = "velocidade corrigida pela inclinacao, por batimento"
+        basis = "velocidade corrigida pela inclinação, por batimento"
     else:
-        basis = "potencia (resultado, sem medida de custo)"
+        basis = "potência (resultado, sem medida de custo)"
 
     # Quem pode disputar melhor/pior: trecho longo o suficiente, pedalado de
     # verdade e nao descida - descida mede a estrada, nao a perna.
@@ -595,12 +595,12 @@ def analyze(streams: dict, ftp: int, sample_rate_s: float | None = None) -> dict
 
         highlights["best"] = {
             **best,
-            "verdict": f"{best['score'] - 100:+.0f}% de rendimento em relacao ao seu padrao do dia",
+            "verdict": f"{best['score'] - 100:+.0f}% de rendimento em relação ao seu padrão do dia",
             "reasons": explain(best, baseline, best["start_index"] / n, True),
         }
         highlights["worst"] = {
             **worst,
-            "verdict": f"{worst['score'] - 100:+.0f}% de rendimento em relacao ao seu padrao do dia",
+            "verdict": f"{worst['score'] - 100:+.0f}% de rendimento em relação ao seu padrão do dia",
             "reasons": explain(worst, baseline, worst["end_index"] / n, False),
         }
         highlights["ranking"] = sorted(candidates, key=lambda c: c["score"], reverse=True)
@@ -694,24 +694,24 @@ def cadence_report(
     if avg_cadence:
         if avg_cadence < 72:
             insight = (
-                f"Seu giro medio esta em {avg_cadence:.0f} rpm. Cadencia nessa faixa carrega mais a perna e "
-                f"menos o pulmao, e ao longo das semanas costuma cobrar do joelho. Vale experimentar subir "
-                f"uma coroa e treinar em 85 a 90 rpm em pedais leves ate ficar natural."
+                f"Seu giro médio está em {avg_cadence:.0f} rpm. Cadência nessa faixa carrega mais a perna e "
+                f"menos o pulmão, e ao longo das semanas costuma cobrar do joelho. Vale experimentar subir "
+                f"uma coroa e treinar em 85 a 90 rpm em pedais leves até ficar natural."
             )
         elif avg_cadence > 95:
             insight = (
-                f"Giro medio de {avg_cadence:.0f} rpm, bem alto. Poupa a perna, mas cobra do cardiovascular. "
-                f"Se sua FC media esta alta para o esforco, pesar um pouco a marcha pode baixar o custo."
+                f"Giro médio de {avg_cadence:.0f} rpm, bem alto. Poupa a perna, mas cobra do cardiovascular. "
+                f"Se sua FC média está alta para o esforço, pesar um pouco a marcha pode baixar o custo."
             )
         else:
             insight = (
-                f"Giro medio de {avg_cadence:.0f} rpm, dentro da faixa que a maioria dos ciclistas sustenta "
+                f"Giro médio de {avg_cadence:.0f} rpm, dentro da faixa que a maioria dos ciclistas sustenta "
                 f"com melhor economia."
             )
     if mashing_s > 180:
         insight = (insight or "") + (
-            f" Atencao: {mashing_s / 60:.0f} min pedalando abaixo de 70 rpm com potencia alta. "
-            f"E o padrao de carga que mais castiga a articulacao."
+            f" Atenção: {mashing_s / 60:.0f} min pedalando abaixo de 70 rpm com potência alta. "
+            f"É o padrão de carga que mais castiga a articulação."
         )
 
     return {
@@ -781,13 +781,13 @@ def pacing_report(time_s: np.ndarray, power: np.ndarray, speed: np.ndarray, hr: 
     change = (last - first) / first * 100 if first else 0
     if change < -8:
         verdict = (
-            f"Split positivo: voce fechou {abs(change):.0f}% mais fraco do que comecou. Sair mais contido nos "
+            f"Split positivo: você fechou {abs(change):.0f}% mais fraco do que começou. Sair mais contido nos "
             f"primeiros 20 minutos costuma render um tempo total melhor."
         )
     elif change > 8:
-        verdict = f"Split negativo: fechou {change:.0f}% mais forte do que comecou. Distribuicao de esforco bem feita."
+        verdict = f"Split negativo: fechou {change:.0f}% mais forte do que começou. Distribuição de esforço bem feita."
     else:
-        verdict = f"Ritmo parelho do inicio ao fim (variacao de {change:+.0f}%). Boa gestao de esforco."
+        verdict = f"Ritmo parelho do início ao fim (variação de {change:+.0f}%). Boa gestão de esforço."
 
     return {
         "available": True,
@@ -844,18 +844,18 @@ def gear_report(cadence: np.ndarray, speed: np.ndarray, sample_rate_s: float = 1
 
     if top_three > 0.6:
         insight = (
-            f"Voce passou {top_three * 100:.0f}% do pedal em apenas tres relacoes. Trocar marcha mais cedo, "
-            f"antes da rampa mudar, costuma segurar a cadencia estavel e cansar menos a perna."
+            f"Você passou {top_three * 100:.0f}% do pedal em apenas três relações. Trocar marcha mais cedo, "
+            f"antes da rampa mudar, costuma segurar a cadência estável e cansar menos a perna."
         )
     elif spread < 2.0:
         insight = (
-            f"Sua faixa de marchas usada e estreita: quase tudo entre {np.percentile(development, 10):.1f} e "
-            f"{np.percentile(development, 90):.1f} m por pedalada. Vale explorar as relacoes das pontas."
+            f"Sua faixa de marchas usada é estreita: quase tudo entre {np.percentile(development, 10):.1f} e "
+            f"{np.percentile(development, 90):.1f} m por pedalada. Vale explorar as relações das pontas."
         )
     else:
         insight = (
-            f"Boa distribuicao de marchas: voce transitou entre {np.percentile(development, 10):.1f} e "
-            f"{np.percentile(development, 90):.1f} m por pedalada, sinal de que esta acompanhando o terreno."
+            f"Boa distribuição de marchas: você transitou entre {np.percentile(development, 10):.1f} e "
+            f"{np.percentile(development, 90):.1f} m por pedalada, sinal de que está acompanhando o terreno."
         )
 
     return {
