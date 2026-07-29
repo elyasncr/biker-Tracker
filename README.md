@@ -190,6 +190,15 @@ quando pegar leve, não como meta a bater.
 | GET | `/api/stats/power-curve` | melhores esforços por duração |
 | GET | `/api/stats/zones` | tempo por zona de potência e FC |
 | GET | `/api/stats/records` | recordes pessoais |
+| GET | `/api/bikes/drivetrain-presets` | catálogo de coroas, catracas e aros para o formulário |
+| PATCH | `/api/bikes/{id}` | edita a bike (só os campos enviados) |
+| POST | `/api/bikes/{id}/assign-range` | atribui um período inteiro a uma bike |
+| GET | `/api/coach` | prontidão, prescrição e progresso num payload |
+| GET/PUT | `/api/coach/goal` | meta de constância |
+| GET/POST | `/api/weight` | registro de peso (upsert por data) |
+| DELETE | `/api/weight/{data}` | apaga um lançamento |
+| GET | `/api/sync/history` | histórico das varreduras |
+| GET | `/api/health` | ping |
 | GET | `/api/igpsport/status` | mostra se a integração está ligada |
 | POST | `/api/igpsport/sync` | baixa da API (503 enquanto desligado) |
 
@@ -198,27 +207,52 @@ quando pegar leve, não como meta a bater.
 ## Estrutura
 
 ```
-igpsport-tracker/
-├── data/                       ← seus .fit vão aqui
+Bike_Graph/
+├── data/                       ← seus .fit vão aqui (fora do repositório)
+├── docs/superpowers/           specs e planos de cada feature
 ├── backend/
+│   ├── tests/                  pytest: transmissão e regras do treinador
 │   └── app/
 │       ├── main.py             FastAPI + sync na inicialização
-│       ├── models.py           Activity, ActivityStream, SyncLog, OAuthToken
-│       ├── routers/            activities · stats · sync
+│       ├── models.py           Activity · ActivityStream · Bike · SyncLog
+│       │                       OAuthToken · WeightEntry · CoachGoal
+│       ├── routers/            activities · analysis · bikes · stats
+│       │                       sync · coach · weight
 │       └── services/
-│           ├── fit_parser.py   leitura do .fit (fitdecode)
-│           ├── metrics.py      NP, IF, TSS, TRIMP, curva, zonas, PMC
+│           ├── fit_parser.py   leitura do .fit (fitdecode) + fuso + sensores
+│           ├── metrics.py      NP, IF, TSS, TRIMP, curva, zonas, PMC, relevo
+│           ├── power_model.py  potência pela física, sem potenciômetro
+│           ├── analysis.py     ⭐ telemetria: trechos, melhor/pior, cadência
+│           ├── drivetrain.py   ⭐ relações da bike e cobertura de marchas
+│           ├── coach.py        ⭐ prontidão, prescrição e progresso
+│           ├── bikes.py        casamento e aprendizado de assinaturas
 │           ├── ingest.py       varredura da pasta + deduplicação
 │           └── igpsport_client.py   OAuth2, pronto e desligado
 └── frontend/
     └── src/app/
         ├── core/               ApiService + tipos
         ├── shared/             Chart.js, mapa Leaflet, painel de telemetria, pipes
-        └── pages/              dashboard · treinos · detalhe · garagem
+        └── pages/              dashboard · treinador · treinos · detalhe · garagem
 ```
 
 O banco é SQLite (`backend/igpsport.db`), criado sozinho. Para trocar por Postgres, é só mudar
 `DATABASE_URL` no `.env` — o SQLAlchemy cuida do resto.
+
+**O que não está no repositório, de propósito:** o `.env` (seu FTP e seu peso), o banco
+(seus treinos e seu peso ao longo do tempo) e os `.fit` de `data/` — que trazem a rota exata
+dos seus pedais, inclusive de onde você sai de casa. Isso é seu, não do Git.
+
+### Testes
+
+```bash
+cd backend && ./.venv/Scripts/python.exe -m pytest tests/ -q
+```
+
+São 56, cobrindo a matemática de transmissão e as regras do treinador. Os do treinador têm uma
+particularidade: cinco deles são **invariantes de comportamento**, não de cálculo. Eles varrem o
+texto que o sistema produz procurando palavras que ele não pode dizer — "tiro", "limiar" (o
+treinador nunca prescreve intensidade) e "deveria", "preguiça", "vergonha" (ele nunca cobra).
+Se alguém escrever uma mensagem que force ou repreenda, o build quebra.
 
 ---
 
@@ -284,12 +318,92 @@ de potência: peso, tipo de pneu e postura mudam a física.
 
 ---
 
+## Marchas que você não usa
+
+Declare a transmissão da bike na Garagem — coroa, catraca e aro, por preset ou digitando os
+dentes — e o sistema cruza as relações que a bike **tem** com o desenvolvimento que você
+**usou**. A resposta é acionável: esse cassete serve pro terreno que eu pedalo, ou tem relação
+morta pendurada aí?
+
+O detalhe que decide a honestidade do relatório: numa transmissão 2x ou 3x, **relações
+diferentes produzem o mesmo desenvolvimento**. Numa 42-34-24 com catraca 14-34, `24×24` e
+`34×34` dão exatamente 2,29 m por pedalada. Velocidade ÷ cadência não tem como dizer em qual
+coroa você estava — das 21 combinações mecânicas sobram 14 faixas distinguíveis.
+
+Mas a ambiguidade só atrapalha dizer *qual* marcha você usou. Ela **não atrapalha dizer que uma
+faixa ficou parada**: se ninguém passou por ali, todas as relações daquela faixa ficaram
+paradas, sem dúvida. Vazio é inequívoco — e é por isso que "marchas não usadas" é a leitura que
+a física permite fazer com precisão.
+
+Tem ainda um autoteste de graça: amostra que não casa com nenhuma relação declarada vai pro
+balde **"fora de relação"**. Se ele passar de 10%, o cassete ou a circunferência do aro que você
+declarou provavelmente estão errados, e a tela avisa.
+
+---
+
+## Treinador
+
+Uma aba que responde três perguntas: **pedalo hoje?**, **o que faço?**, **estou evoluindo?**
+
+A decisão que define esta aba é qual é a moeda. Um treinador clássico falaria em TSS — mas TSS
+depende do FTP, e o FTP aqui é o valor padrão do `.env`, que ninguém mediu. Medido num pedal
+real: o mesmo treino dá TSS 28 com FTP 220 e TSS 61 com FTP 150. Ou seja, vira "leve" ou
+"descanso obrigatório" só mudando um número inventado.
+
+Então a moeda é **tempo e frequência**. Sessenta minutos são sessenta minutos, independente de
+qualquer estimativa. E para quem treina por peso e constância, tempo também é a métrica
+fisiologicamente certa: base aeróbica responde a volume, não a intensidade. O TSB entra num
+lugar só — o sinal de descanso — onde o que importa é o sinal e a tendência, não o valor.
+
+Cinco regras governam o que ele pode dizer, e são testadas:
+
+1. Nunca prescreve acima de Z2 — o vocabulário é duração e "ritmo de conversa"
+2. Sugestão de meta limitada a +10% da média de 4 semanas
+3. Nunca sugere subir depois de uma semana abaixo da meta
+4. Descanso é sugestão, nunca alarme
+5. Ausência gera convite, nunca cobrança
+
+E com pouco histórico ele **diz que não sabe**, em vez de inventar. Não é estado de erro: é a
+primeira tela que você vê, e a razão de dar pra confiar nele depois.
+
+O registro de peso vive aqui, e faz dois trabalhos: a linha de tendência, e a correção do modelo
+de potência — que sem ele usaria o mesmo peso para sempre, contaminando a comparação entre meses
+justamente de quem está emagrecendo.
+
+---
+
 ## Ideias para depois
 
 Veja `SPEC.md` para o backlog completo e priorizado. Os próximos da fila:
 
-- Peso do ciclista no `.env` para habilitar W/kg, a moeda real de subida
+- **Login e multiusuário** para subir numa VPS — 7 tabelas ganham dono, 30 consultas ganham filtro
+- W/kg no dashboard: o registro de peso já destravou o dado que faltava
 - Estimativa automática de FTP pelo melhor esforço de 20 min (× 0,95)
 - Detecção de intervalados: "6 × 4 min a 285 W, com queda de 8% do primeiro para o último tiro"
 - Comparar dois treinos na mesma rota, com ghost lap mostrando onde ganhou e perdeu tempo
 - Watcher de arquivos para importar assim que o `.fit` cair na pasta
+
+---
+
+## Correções que valem registro
+
+Quatro bugs que o projeto já teve e não deve ter de novo. Os detalhes e os números medidos
+estão no `SPEC.md` (§3.7, §3.9, §3.10).
+
+**O horário do treino era gravado em UTC.** Um pedal das 18:22 aparecia como 21:22, e um pedal
+depois das 21h caía no dia seguinte. O `.fit` traz o fuso na própria mensagem `activity` —
+agora é de lá que ele sai.
+
+**A telemetria contava tempo em número de amostras, não em segundos.** O ciclocomputador grava
+em "smart recording" (um ponto a cada 1 a 8 s) e a série ainda é reduzida a 1200 pontos. Tempo
+de barriga, marcha pesada e o gráfico de cadência saíam divididos por esse fator: num pedal de
+44 min, a soma dava 14% do treino. Agora dá 99%.
+
+**As janelas de suavização também eram contadas em amostras.** A 7 s por amostra, "15 amostras"
+viravam 105 s de estrada, a inclinação era alisada até quase sumir, e o pedal inteiro virava um
+trecho plano só — sem dois candidatos, o melhor/pior momento simplesmente não existia. Medido:
+inclinação máxima de 1,98% na versão antiga contra 8,52% na nova, com o aparelho tendo gravado
+7,65%.
+
+**Um `.fit` sem `total_descent` derrubava o import inteiro** com `TypeError`, porque a mesma
+chave chegava por dois caminhos ao construtor.
