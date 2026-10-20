@@ -18,7 +18,7 @@ Pedalo hoje? O que faço? Estou evoluindo? Com uma leitura dos seus pedais gerad
 ![Tela do Treinador](screenshots/02-treinador.png)
 
 ### Técnica — pontos de evolução
-Os mesmos gráficos, cada um com um guia em três partes: o que o dado mostra, como melhorar e como aplicar no próximo pedal.
+Escolha um treino e veja o **percurso trecho a trecho no mapa**: pinos numerados, verdes onde você foi bem (manter e evoluir) e laranjas onde dá pra melhorar, com a dica da IA ancorada a cada ponto. Abaixo, os mesmos gráficos de cadência, pacing, zonas e terreno, cada um com um guia em três partes — o que o dado mostra, como melhorar e como aplicar no próximo pedal.
 
 ![Tela de Técnica](screenshots/03-tecnica.png)
 
