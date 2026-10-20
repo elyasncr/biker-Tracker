@@ -5,6 +5,7 @@ import {
   Analysis,
   Bike,
   ClimbComparison,
+  RouteAdvice,
   RouteData,
   UnassignedGroup,
   ActivityDetail,
@@ -84,6 +85,11 @@ export class ApiService {
 
   analysis(id: number): Observable<Analysis> {
     return this.http.get<Analysis>(this.base + '/activities/' + id + '/analysis');
+  }
+
+  routeAdvice(id: number, refresh = false): Observable<RouteAdvice> {
+    const params = new HttpParams().set('refresh', refresh);
+    return this.http.get<RouteAdvice>(this.base + '/activities/' + id + '/route-advice', { params });
   }
 
   route(id: number): Observable<RouteData> {

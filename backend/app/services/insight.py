@@ -209,6 +209,18 @@ def _extract_json(text: str) -> dict | None:
         return None
 
 
+def _extract_json_array(text: str) -> list | None:
+    text = _strip_think(text)
+    m = re.search(r"\[.*\]", text, flags=re.DOTALL)
+    if not m:
+        return None
+    try:
+        val = json.loads(m.group(0))
+        return val if isinstance(val, list) else None
+    except json.JSONDecodeError:
+        return None
+
+
 # Exemplo few-shot: o qwen3 tende a comer acentos; espelhar uma resposta ja
 # acentuada e o que efetivamente faz ele escrever portugues correto. Os numeros
 # aqui sao ficticios, so para ancorar o ESTILO e a acentuacao - nao o conteudo.
@@ -369,3 +381,55 @@ def generate_guide(summary: dict, host: str, model: str, timeout: float = 240.0)
         out[d] = {p: flat[i + j] for j, p in enumerate(GUIDE_PARTS)}
         i += len(GUIDE_PARTS)
     return out
+
+
+# --- dicas localizadas no percurso (tela Tecnica, mapa do treino) ----------
+
+ROUTE_SYSTEM = """Você é o Treinador de um app de ciclismo, escrevendo em português do Brasil.
+
+Para cada trecho de um pedal que te passo, escreva UMA dica curta e prática de como melhorar ALI no próximo pedal — pode ser técnica, postura, troca de marcha ou intensidade. Sempre para frente, concreta e específica aos números daquele trecho. Nunca cobre nem culpe o passado. Não invente número fora dos dados. A potência é ESTIMADA (sem potenciômetro).
+
+Responda APENAS um array JSON de strings (uma dica por trecho), na MESMA ordem em que recebeu os trechos, sem nenhum outro texto. Cada dica tem 1 ou 2 frases."""
+
+
+def _route_prompt(points: list[dict]) -> str:
+    linhas = ["Trechos do pedal (em ordem):"]
+    for i, p in enumerate(points, 1):
+        linhas.append(
+            f"{i}) {p.get('terrain', '?')} de {p.get('gradient', '?')}% entre km "
+            f"{p.get('start_km', '?')} e {p.get('end_km', '?')}. "
+            f"Cadência {p.get('avg_cadence')} rpm, torque {p.get('torque_nm')} Nm, "
+            f"potência estimada {p.get('avg_power')} W. Observação: {p.get('problema', '')}"
+        )
+    return "\n".join(linhas)
+
+
+def route_dicas(points: list[dict], host: str, model: str, timeout: float = 180.0) -> list[str]:
+    """Uma dica por trecho, na ordem. Lista vazia/parcial se o Ollama falhar."""
+    if not points:
+        return []
+    try:
+        resp = httpx.post(
+            f"{host.rstrip('/')}/api/chat",
+            json={
+                "model": model,
+                "stream": False,
+                "think": False,
+                "options": {"temperature": 0.4},
+                "messages": [
+                    {"role": "system", "content": ROUTE_SYSTEM},
+                    {"role": "user", "content": _route_prompt(points)},
+                ],
+            },
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        content = resp.json().get("message", {}).get("content", "")
+    except (httpx.HTTPError, ValueError):
+        return []
+
+    arr = _extract_json_array(content)
+    if not arr:
+        return []
+    dicas = [str(x).strip() for x in arr][: len(points)]
+    return _fix_accents(dicas, host, model)

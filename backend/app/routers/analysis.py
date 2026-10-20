@@ -6,8 +6,12 @@ from ..config import get_settings
 from ..database import get_db
 from ..models import Activity
 from ..services import analysis, drivetrain
+from ..services import insight as insight_service
 
 router = APIRouter(prefix="/api/activities", tags=["analise"])
+
+# Cache das dicas localizadas (LLM, lento). Chave = (modelo, activity_id, ftp).
+_route_advice_cache: dict[tuple, dict] = {}
 
 
 @router.get("/{activity_id}/analysis")
@@ -170,6 +174,101 @@ def _at(stream: list | None, index: int):
     if not stream or index >= len(stream):
         return None
     return stream[index]
+
+
+# Trechos escolhidos nao podem se sobrepor: 15% do pedal entre um e outro.
+_ADVICE_SPREAD = 0.15
+
+
+@router.get("/{activity_id}/route-advice")
+def route_advice(activity_id: int, refresh: bool = False, db: Session = Depends(get_db)):
+    """Tela Tecnica, mapa do treino: os 3 trechos mais melhoraveis do percurso,
+    cada um ancorado a um ponto do mapa (lat/lon) com o problema (factual) e a
+    dica de como melhorar ali (IA local)."""
+    activity = db.get(Activity, activity_id)
+    if activity is None:
+        raise HTTPException(404, "Treino não encontrado")
+    if activity.stream is None:
+        raise HTTPException(422, "Esse treino não tem série temporal guardada.")
+
+    settings = get_settings()
+    payload = activity.stream.payload
+    if not (payload.get("lat") and payload.get("lon")):
+        return {"available": False, "reason": "Esse .fit não tem GPS — sem mapa, sem dicas no percurso."}
+
+    result = analysis.analyze(payload, settings.ftp_watts)
+    if not result.get("available"):
+        return {"available": False, "reason": result.get("reason", "Treino curto demais para analisar.")}
+
+    ranking = result["highlights"].get("ranking") or []
+    baseline = result["baseline"]
+    n = len(payload.get("t") or []) or 1
+
+    # Os 3 piores por rendimento (score baixo), com GPS e sem se sobrepor.
+    gap = max(1, int(n * _ADVICE_SPREAD))
+    escolhidos: list[dict] = []
+    for seg in sorted(ranking, key=lambda c: c.get("score", 100)):
+        if seg.get("lat") is None or seg.get("lon") is None:
+            continue
+        if any(abs(seg["start_index"] - c["start_index"]) < gap for c in escolhidos):
+            continue
+        escolhidos.append(seg)
+        if len(escolhidos) == 3:
+            break
+
+    if not escolhidos:
+        return {"available": False, "reason": "Não há trechos pedalados longos o bastante para apontar no mapa."}
+
+    pontos = []
+    for ordem, seg in enumerate(escolhidos, 1):
+        motivos = analysis.explain(seg, baseline, seg["end_index"] / n, False)
+        problema = motivos[0]["text"] if motivos else (
+            f"{seg['terrain'].capitalize()} de {seg['gradient']}%, cadência {seg.get('avg_cadence')} rpm."
+        )
+        pontos.append(
+            {
+                "order": ordem,
+                "label": f"{seg['terrain'].capitalize()} · km {seg['start_km']}–{seg['end_km']}",
+                "terrain": seg["terrain"],
+                "gradient": seg["gradient"],
+                "start_km": seg["start_km"],
+                "end_km": seg["end_km"],
+                "start_index": seg["start_index"],
+                "end_index": seg["end_index"],
+                "lat": seg["lat"],
+                "lon": seg["lon"],
+                "avg_cadence": seg.get("avg_cadence"),
+                "avg_power": seg.get("avg_power"),
+                "torque_nm": seg.get("torque_nm"),
+                "problema": problema,
+            }
+        )
+
+    key = (settings.ollama_model, activity_id, settings.ftp_watts)
+    cached = None if refresh else _route_advice_cache.get(key)
+    if cached is None and settings.ollama_enabled:
+        dicas = insight_service.route_dicas(pontos, settings.ollama_host, settings.ollama_model)
+        if dicas:
+            cached = {"dicas": dicas, "generated_at": _now_iso()}
+            _route_advice_cache[key] = cached
+
+    dicas = cached["dicas"] if cached else []
+    for i, p in enumerate(pontos):
+        p["dica"] = dicas[i] if i < len(dicas) else None
+
+    return {
+        "available": True,
+        "points": pontos,
+        "dicas_available": cached is not None,
+        "model": settings.ollama_model,
+        "generated_at": cached["generated_at"] if cached else None,
+    }
+
+
+def _now_iso() -> str:
+    from datetime import datetime
+
+    return datetime.utcnow().isoformat()
 
 
 def _distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

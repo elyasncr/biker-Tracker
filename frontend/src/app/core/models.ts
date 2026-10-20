@@ -413,3 +413,30 @@ export interface CoachEvolution {
   model?: string;
   generated_at?: string | null;
 }
+
+export interface RouteAdvicePoint {
+  order: number;
+  label: string;
+  terrain: string;
+  gradient: number;
+  start_km: number;
+  end_km: number;
+  start_index: number;
+  end_index: number;
+  lat: number;
+  lon: number;
+  avg_cadence: number | null;
+  avg_power: number | null;
+  torque_nm: number | null;
+  problema: string;
+  dica: string | null;
+}
+
+export interface RouteAdvice {
+  available: boolean;
+  reason?: string;
+  points?: RouteAdvicePoint[];
+  dicas_available?: boolean;
+  model?: string;
+  generated_at?: string | null;
+}
