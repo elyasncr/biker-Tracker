@@ -417,6 +417,8 @@ export interface CoachEvolution {
 export interface RouteAdvicePoint {
   order: number;
   label: string;
+  verdict: 'bom' | 'melhorar';
+  score: number | null;
   terrain: string;
   gradient: number;
   start_km: number;
@@ -428,7 +430,7 @@ export interface RouteAdvicePoint {
   avg_cadence: number | null;
   avg_power: number | null;
   torque_nm: number | null;
-  problema: string;
+  observacao: string;
   dica: string | null;
 }
 

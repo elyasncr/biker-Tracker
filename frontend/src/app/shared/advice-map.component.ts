@@ -12,7 +12,12 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 import { RouteAdvicePoint, RoutePoint } from '../core/models';
-import { INK, PAPER, SECONDARY, WATT } from '../core/theme';
+import { CLIMB, PAPER, SECONDARY, WATT } from '../core/theme';
+
+// Verde para trecho bom, laranja (potencia) para trecho a melhorar.
+function verdictColor(p: RouteAdvicePoint): string {
+  return p.verdict === 'bom' ? CLIMB : WATT;
+}
 
 // Mapa do percurso com os pontos de melhoria ancorados: a linha do trajeto em
 // tom neutro, pinos numerados nos trechos-chave e o trecho ativo aceso. O
@@ -114,9 +119,10 @@ export class AdviceMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     const slice = this.points.filter((p) => p.i >= a.start_index && p.i <= a.end_index);
     if (slice.length) {
       const latlngs = slice.map((p) => [p.lat, p.lon] as L.LatLngExpression);
-      // Halo largo por baixo + a rota acesa em laranja solido por cima.
-      L.polyline(latlngs, { color: WATT, weight: 14, opacity: 0.25, lineCap: 'round' }).addTo(this.highlightLayer);
-      L.polyline(latlngs, { color: WATT, weight: 6, opacity: 1, lineCap: 'round' }).addTo(this.highlightLayer);
+      const color = verdictColor(a);
+      // Halo largo por baixo + a rota acesa na cor do veredito (verde/laranja).
+      L.polyline(latlngs, { color, weight: 14, opacity: 0.25, lineCap: 'round' }).addTo(this.highlightLayer);
+      L.polyline(latlngs, { color, weight: 6, opacity: 1, lineCap: 'round' }).addTo(this.highlightLayer);
     }
     this.redrawPins();
   }
@@ -130,7 +136,7 @@ export class AdviceMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private pin(a: RouteAdvicePoint, isActive: boolean): L.Marker {
     const size = isActive ? 30 : 24;
-    const bg = isActive ? WATT : INK;
+    const bg = verdictColor(a);
     const icon = L.divIcon({
       className: '',
       html:

@@ -59,13 +59,21 @@ import { buildBars, buildPacing, cadenceColors, TERRAIN_COLORS, ZONE_COLOR } fro
                 <div
                   class="advice-item"
                   [class.on]="p.order === activeOrder()"
+                  [class.bom]="p.verdict === 'bom'"
                   (mouseenter)="activeOrder.set(p.order)"
                   (mouseleave)="activeOrder.set(null)"
                 >
-                  <div class="advice-head"><span class="num">{{ p.order }}</span><strong>{{ p.label }}</strong></div>
-                  <p class="prob">{{ p.problema }}</p>
+                  <div class="advice-head">
+                    <span class="num">{{ p.order }}</span>
+                    <strong>{{ p.label }}</strong>
+                    <span class="chip">{{ p.verdict === 'bom' ? 'Bom' : 'A melhorar' }}</span>
+                  </div>
+                  <p class="prob">{{ p.observacao }}</p>
                   @if (p.dica) {
-                    <p class="dica"><span class="plabel">Como melhorar aqui</span>{{ p.dica }}</p>
+                    <p class="dica">
+                      <span class="plabel">{{ p.verdict === 'bom' ? 'Como manter e evoluir' : 'Como melhorar aqui' }}</span>
+                      {{ p.dica }}
+                    </p>
                   }
                 </div>
               }
@@ -182,17 +190,24 @@ import { buildBars, buildPacing, cadenceColors, TERRAIN_COLORS, ZONE_COLOR } fro
       .advice-item.on { background: var(--paper-deep); }
       .advice-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
       .advice-head .num {
-        flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--paper);
+        flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--watt); color: var(--paper);
         font: 600 12px/1 'IBM Plex Mono', ui-monospace, monospace; display: flex; align-items: center; justify-content: center;
       }
-      .advice-item.on .advice-head .num { background: var(--watt); }
+      .advice-item.bom .advice-head .num { background: var(--climb); }
       .advice-head strong { font-family: var(--display); font-size: 1rem; color: var(--ink); }
+      .advice-head .chip {
+        margin-left: auto; font-family: var(--body); font-size: 0.6rem; letter-spacing: 0.1em;
+        text-transform: uppercase; color: var(--watt); border: 1px solid var(--watt);
+        border-radius: 999px; padding: 2px 8px;
+      }
+      .advice-item.bom .advice-head .chip { color: var(--climb); border-color: var(--climb); }
       .prob { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--secondary); }
       .dica { margin: 10px 0 0; font-size: 0.9rem; line-height: 1.55; color: var(--ink); }
       .dica .plabel {
         display: block; font-family: var(--body); font-size: 0.62rem; letter-spacing: 0.12em;
         text-transform: uppercase; color: var(--watt); margin-bottom: 4px;
       }
+      .advice-item.bom .dica .plabel { color: var(--climb); }
     `,
   ],
 })

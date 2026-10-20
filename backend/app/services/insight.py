@@ -387,19 +387,25 @@ def generate_guide(summary: dict, host: str, model: str, timeout: float = 240.0)
 
 ROUTE_SYSTEM = """Você é o Treinador de um app de ciclismo, escrevendo em português do Brasil.
 
-Para cada trecho de um pedal que te passo, escreva UMA dica curta e prática de como melhorar ALI no próximo pedal — pode ser técnica, postura, troca de marcha ou intensidade. Sempre para frente, concreta e específica aos números daquele trecho. Nunca cobre nem culpe o passado. Não invente número fora dos dados. A potência é ESTIMADA (sem potenciômetro).
+Percorro o trajeto trecho a trecho e te passo cada um com um veredito: "bom" (você foi bem ali) ou "melhorar".
+
+- Se o trecho é BOM: reconheça o acerto em poucas palavras e diga como manter e evoluir só um pouco mais (ex.: segurar o giro, ousar um tiquinho a mais).
+- Se é para MELHORAR: diga de forma concreta como melhorar ali no próximo pedal (técnica, postura, troca de marcha ou intensidade).
+
+Sempre para frente, específico aos números do trecho. Nunca cobre nem culpe o passado. Não invente número fora dos dados. A potência é ESTIMADA (sem potenciômetro).
 
 Responda APENAS um array JSON de strings (uma dica por trecho), na MESMA ordem em que recebeu os trechos, sem nenhum outro texto. Cada dica tem 1 ou 2 frases."""
 
 
 def _route_prompt(points: list[dict]) -> str:
-    linhas = ["Trechos do pedal (em ordem):"]
+    linhas = ["Trechos do pedal (na ordem do percurso):"]
     for i, p in enumerate(points, 1):
+        veredito = "BOM" if p.get("verdict") == "bom" else "MELHORAR"
         linhas.append(
-            f"{i}) {p.get('terrain', '?')} de {p.get('gradient', '?')}% entre km "
+            f"{i}) [{veredito}] {p.get('terrain', '?')} de {p.get('gradient', '?')}% entre km "
             f"{p.get('start_km', '?')} e {p.get('end_km', '?')}. "
             f"Cadência {p.get('avg_cadence')} rpm, torque {p.get('torque_nm')} Nm, "
-            f"potência estimada {p.get('avg_power')} W. Observação: {p.get('problema', '')}"
+            f"potência estimada {p.get('avg_power')} W. Observação: {p.get('observacao', '')}"
         )
     return "\n".join(linhas)
 

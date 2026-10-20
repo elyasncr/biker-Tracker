@@ -176,8 +176,9 @@ def _at(stream: list | None, index: int):
     return stream[index]
 
 
-# Trechos escolhidos nao podem se sobrepor: 15% do pedal entre um e outro.
-_ADVICE_SPREAD = 0.15
+# Trechos escolhidos nao podem se sobrepor; com ate 6 pontos, ~6% entre eles.
+_ADVICE_SPREAD = 0.06
+_ADVICE_MAX = 6
 
 
 @router.get("/{activity_id}/route-advice")
@@ -204,31 +205,38 @@ def route_advice(activity_id: int, refresh: bool = False, db: Session = Depends(
     baseline = result["baseline"]
     n = len(payload.get("t") or []) or 1
 
-    # Os 3 piores por rendimento (score baixo), com GPS e sem se sobrepor.
+    # Conjunto equilibrado: os trechos mais marcantes (maior desvio do rendimento
+    # mediano do dia, para cima OU para baixo), com GPS e sem se sobrepor. Depois
+    # reordenados na ordem do percurso. Score >= 100 e trecho bom; abaixo, a melhorar.
     gap = max(1, int(n * _ADVICE_SPREAD))
     escolhidos: list[dict] = []
-    for seg in sorted(ranking, key=lambda c: c.get("score", 100)):
+    for seg in sorted(ranking, key=lambda c: abs(c.get("score", 100) - 100), reverse=True):
         if seg.get("lat") is None or seg.get("lon") is None:
             continue
         if any(abs(seg["start_index"] - c["start_index"]) < gap for c in escolhidos):
             continue
         escolhidos.append(seg)
-        if len(escolhidos) == 3:
+        if len(escolhidos) == _ADVICE_MAX:
             break
 
     if not escolhidos:
         return {"available": False, "reason": "Não há trechos pedalados longos o bastante para apontar no mapa."}
 
+    escolhidos.sort(key=lambda c: c["start_index"])  # ordem do percurso
+
     pontos = []
     for ordem, seg in enumerate(escolhidos, 1):
-        motivos = analysis.explain(seg, baseline, seg["end_index"] / n, False)
-        problema = motivos[0]["text"] if motivos else (
+        bom = seg.get("score", 100) >= 100
+        motivos = analysis.explain(seg, baseline, seg["end_index"] / n, bom)
+        observacao = motivos[0]["text"] if motivos else (
             f"{seg['terrain'].capitalize()} de {seg['gradient']}%, cadência {seg.get('avg_cadence')} rpm."
         )
         pontos.append(
             {
                 "order": ordem,
                 "label": f"{seg['terrain'].capitalize()} · km {seg['start_km']}–{seg['end_km']}",
+                "verdict": "bom" if bom else "melhorar",
+                "score": seg.get("score"),
                 "terrain": seg["terrain"],
                 "gradient": seg["gradient"],
                 "start_km": seg["start_km"],
@@ -240,7 +248,7 @@ def route_advice(activity_id: int, refresh: bool = False, db: Session = Depends(
                 "avg_cadence": seg.get("avg_cadence"),
                 "avg_power": seg.get("avg_power"),
                 "torque_nm": seg.get("torque_nm"),
-                "problema": problema,
+                "observacao": observacao,
             }
         )
 
