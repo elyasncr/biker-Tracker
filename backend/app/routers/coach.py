@@ -209,6 +209,54 @@ def coach_insight(refresh: bool = False, db: Session = Depends(get_db)):
     }
 
 
+_guide_cache: dict[tuple, dict] = {}
+
+
+@router.get("/evolution")
+def coach_evolution(refresh: bool = False, db: Session = Depends(get_db)):
+    """Tela "Técnica" / Pontos de evolução: os mesmos números/gráficos do insight,
+    com um guia detalhado em 3 partes por dimensão (o que mostra, como melhorar,
+    como aplicar no treino)."""
+    settings = get_settings()
+    recentes = _recent_activities(db)
+    if not recentes:
+        return {"available": False, "reason": "Sem treinos para analisar ainda."}
+
+    rides = [
+        {
+            "date": a.started_at.date(),
+            "title": a.title,
+            "minutes": a.moving_time_s / 60,
+            "distance_km": a.distance_km,
+            "np": a.normalized_power,
+            "tss": a.tss,
+            "vi": a.variability_index,
+            "avg_cadence": a.avg_cadence,
+            "power_is_estimated": a.power_is_estimated,
+            "payload": a.stream.payload if a.stream else None,
+        }
+        for a in recentes
+    ]
+    summary = insight_service.build_summary(rides, settings.ftp_watts)
+
+    key = (settings.ollama_model, tuple(a.id for a in recentes), settings.ftp_watts)
+    cached = None if refresh else _guide_cache.get(key)
+    if cached is None and settings.ollama_enabled:
+        guia = insight_service.generate_guide(summary, settings.ollama_host, settings.ollama_model)
+        if guia:
+            cached = {"guide": guia, "generated_at": datetime.utcnow().isoformat()}
+            _guide_cache[key] = cached
+
+    return {
+        "available": True,
+        "summary": summary,
+        "guide": cached["guide"] if cached else None,
+        "guide_available": cached is not None,
+        "model": settings.ollama_model,
+        "generated_at": cached["generated_at"] if cached else None,
+    }
+
+
 @router.get("/goal")
 def get_goal(db: Session = Depends(get_db)):
     return _goal_dict(_get_goal(db))

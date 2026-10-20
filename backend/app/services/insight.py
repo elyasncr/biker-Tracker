@@ -302,3 +302,70 @@ def generate_text(summary: dict, host: str, model: str, timeout: float = 180.0) 
     valores = [str(data.get(k, "")).strip() for k in keys]
     valores = _fix_accents(valores, host, model)  # segundo passe: so acentuacao
     return dict(zip(keys, valores))
+
+
+# --- guia detalhado (tela "Tecnica" / Pontos de evolucao) -----------------
+
+GUIDE_SYSTEM = """Você é o Treinador de um app de ciclismo, escrevendo em português do Brasil.
+
+Tom: caloroso, direto, editorial. Fala com o ciclista por "você".
+
+ORTOGRAFIA: português do Brasil impecável, com toda a acentuação e cedilha corretas.
+
+Para cada dimensão (cadência, pacing, zonas, terreno), escreva um guia em TRÊS partes:
+- "mostra": o que o gráfico daquele tópico revela, específico aos números (1 frase).
+- "melhorar": o que fazer para evoluir nesse ponto. Pode prescrever técnica e intensidade, sempre para frente (1 a 2 frases).
+- "treino": como aplicar no PRÓXIMO pedal — um exercício prático e executável, com números (ex.: "em 3 blocos de 5 min, segure a cadência acima de 85 rpm; descanse 3 min entre eles").
+
+E um "intro": 1 a 2 frases ligando o conjunto.
+
+NUNCA cobre nem culpe o passado (nada de "você deveria ter", "faltou", "preguiça", "vergonha"). Não invente número fora dos dados. A potência é ESTIMADA (sem potenciômetro) — trate como tendência.
+
+Responda APENAS um JSON válido, sem markdown, exatamente com esta forma:
+{"intro":"...","cadencia":{"mostra":"...","melhorar":"...","treino":"..."},"pacing":{"mostra":"...","melhorar":"...","treino":"..."},"zonas":{"mostra":"...","melhorar":"...","treino":"..."},"terreno":{"mostra":"...","melhorar":"...","treino":"..."}}"""
+
+GUIDE_DIMS = ("cadencia", "pacing", "zonas", "terreno")
+GUIDE_PARTS = ("mostra", "melhorar", "treino")
+
+
+def generate_guide(summary: dict, host: str, model: str, timeout: float = 240.0) -> dict | None:
+    """Guia detalhado em 3 partes por dimensao. Mesmo tom e mesmo segundo passe
+    de acentuacao do generate_text."""
+    try:
+        resp = httpx.post(
+            f"{host.rstrip('/')}/api/chat",
+            json={
+                "model": model,
+                "stream": False,
+                "think": False,
+                "options": {"temperature": 0.4},
+                "messages": [
+                    {"role": "system", "content": GUIDE_SYSTEM},
+                    {"role": "user", "content": _user_prompt(summary)},
+                ],
+            },
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        content = resp.json().get("message", {}).get("content", "")
+    except (httpx.HTTPError, ValueError):
+        return None
+
+    data = _extract_json(content)
+    if not isinstance(data, dict):
+        return None
+
+    # Achata todas as frases numa lista, corrige a acentuacao de uma vez, remonta.
+    flat: list[str] = [str(data.get("intro", "")).strip()]
+    for d in GUIDE_DIMS:
+        bloco = data.get(d) or {}
+        for p in GUIDE_PARTS:
+            flat.append(str(bloco.get(p, "")).strip() if isinstance(bloco, dict) else "")
+    flat = _fix_accents(flat, host, model)
+
+    out: dict = {"intro": flat[0]}
+    i = 1
+    for d in GUIDE_DIMS:
+        out[d] = {p: flat[i + j] for j, p in enumerate(GUIDE_PARTS)}
+        i += len(GUIDE_PARTS)
+    return out

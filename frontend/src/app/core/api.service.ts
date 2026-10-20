@@ -10,6 +10,7 @@ import {
   ActivityDetail,
   ActivitySummary,
   AthleteSettings,
+  CoachEvolution,
   CoachGoal,
   CoachInsight,
   CoachReading,
@@ -160,6 +161,11 @@ export class ApiService {
   coachInsight(refresh = false): Observable<CoachInsight> {
     const params = new HttpParams().set('refresh', refresh);
     return this.http.get<CoachInsight>(this.base + '/coach/insight', { params });
+  }
+
+  coachEvolution(refresh = false): Observable<CoachEvolution> {
+    const params = new HttpParams().set('refresh', refresh);
+    return this.http.get<CoachEvolution>(this.base + '/coach/evolution', { params });
   }
 
   weightLog(): Observable<WeightLogEntry[]> {

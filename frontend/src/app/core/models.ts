@@ -389,3 +389,27 @@ export interface CoachInsight {
   model?: string;
   generated_at?: string | null;
 }
+
+export interface EvolutionGuidePart {
+  mostra: string;
+  melhorar: string;
+  treino: string;
+}
+
+export interface EvolutionGuide {
+  intro: string;
+  cadencia: EvolutionGuidePart;
+  pacing: EvolutionGuidePart;
+  zonas: EvolutionGuidePart;
+  terreno: EvolutionGuidePart;
+}
+
+export interface CoachEvolution {
+  available: boolean;
+  reason?: string;
+  summary?: InsightSummary;
+  guide: EvolutionGuide | null;
+  guide_available?: boolean;
+  model?: string;
+  generated_at?: string | null;
+}

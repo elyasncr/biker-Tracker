@@ -24,6 +24,7 @@ import { ApiService } from './core/api.service';
         <nav class="nav">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Evolução</a>
           <a routerLink="/treinador" routerLinkActive="active">Treinador</a>
+          <a routerLink="/tecnica" routerLinkActive="active">Técnica</a>
           <a routerLink="/treinos" routerLinkActive="active">Treinos</a>
           <a routerLink="/bikes" routerLinkActive="active">Garagem</a>
           <button class="btn ghost" (click)="sync()" [disabled]="syncing()">

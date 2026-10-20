@@ -2,10 +2,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration } from 'chart.js';
 import { ApiService } from '../core/api.service';
-import { CoachGoal, CoachInsight, CoachReading, InsightSummary } from '../core/models';
+import { CoachGoal, CoachInsight, CoachReading } from '../core/models';
 import { ChartComponent } from '../shared/chart.component';
 import { NumPipe } from '../shared/format.pipe';
-import { CLIMB, INK, INK_FILL, MUTED, SECONDARY, WATT } from '../core/theme';
+import { INK, INK_FILL, SECONDARY } from '../core/theme';
+import { buildBars, buildPacing, cadenceColors, TERRAIN_COLORS, ZONE_COLOR } from '../shared/insight-charts';
 
 @Component({
   selector: 'app-coach',
@@ -239,10 +240,10 @@ export class CoachComponent implements OnInit {
       next: (ins) => {
         this.insight.set(ins);
         if (ins.summary) {
-          this.cadenceChart.set(this.buildBars(ins.summary.cadence.seconds, this.cadenceColors(ins.summary)));
-          this.zonesChart.set(this.buildBars(ins.summary.zones.seconds, WATT));
-          this.pacingChart.set(this.buildPacing(ins.summary));
-          this.terrainChart.set(this.buildBars(ins.summary.terrain.seconds, [CLIMB, MUTED, SECONDARY]));
+          this.cadenceChart.set(buildBars(ins.summary.cadence.seconds, cadenceColors(ins.summary)));
+          this.zonesChart.set(buildBars(ins.summary.zones.seconds, ZONE_COLOR));
+          this.pacingChart.set(buildPacing(ins.summary));
+          this.terrainChart.set(buildBars(ins.summary.terrain.seconds, TERRAIN_COLORS));
         }
         this.insightLoading.set(false);
       },
@@ -257,54 +258,6 @@ export class CoachComponent implements OnInit {
     this.carregarInsight(true);
   }
 
-  private cadenceColors(s: InsightSummary): string[] {
-    // A faixa ideal (75-90) ganha o verde; as outras ficam em tinta/esmaecido.
-    return Object.keys(s.cadence.seconds).map((k) => (k.startsWith('Ideal') ? CLIMB : INK));
-  }
-
-  // Converte segundos por categoria em barras de minutos. Cor unica ou por barra.
-  private buildBars(seconds: Record<string, number>, color: string | string[]): ChartConfiguration | null {
-    const labels = Object.keys(seconds);
-    if (!labels.length) {
-      return null;
-    }
-    return {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'min',
-            data: labels.map((k) => Math.round(seconds[k] / 60)),
-            backgroundColor: color,
-            borderRadius: 2,
-          },
-        ],
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { title: { display: true, text: 'minutos' } }, x: { grid: { display: false } } },
-      },
-    };
-  }
-
-  private buildPacing(s: InsightSummary): ChartConfiguration | null {
-    const q = s.pacing.quarters_power;
-    if (!q?.length) {
-      return null;
-    }
-    return {
-      type: 'bar',
-      data: {
-        labels: ['1º quarto', '2º', '3º', 'fim'],
-        datasets: [{ label: 'W', data: q, backgroundColor: WATT, borderRadius: 2 }],
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { title: { display: true, text: 'potência (W)' } }, x: { grid: { display: false } } },
-      },
-    };
-  }
 
   private carregar(): void {
     this.api.coach().subscribe((d) => {
