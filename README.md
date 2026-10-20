@@ -5,6 +5,38 @@ usando os arquivos `.fit` exportados do app iGPSPORT.
 
 ---
 
+## Telas
+
+### Evolução — o painel
+Volume, forma (CTL/ATL/TSB), curva de potência, zonas e recordes.
+
+![Tela de Evolução](screenshots/01-evolucao.png)
+
+### Treinador — prontidão, progresso e análise por IA
+Pedalo hoje? O que faço? Estou evoluindo? Com uma leitura dos seus pedais gerada por IA local (Ollama).
+
+![Tela do Treinador](screenshots/02-treinador.png)
+
+### Técnica — pontos de evolução
+Os mesmos gráficos, cada um com um guia em três partes: o que o dado mostra, como melhorar e como aplicar no próximo pedal.
+
+![Tela de Técnica](screenshots/03-tecnica.png)
+
+### Detalhe do treino — telemetria, mapa e análise por trecho
+Melhor e pior momento com o motivo, cadência, parciais e o trajeto colorido pela métrica escolhida.
+
+![Detalhe do treino](screenshots/05-detalhe.png)
+
+### Garagem — qual bike e a transmissão
+Odômetro por bike, atribuição pelos sensores e as marchas que você realmente usa.
+
+![Tela da Garagem](screenshots/06-garagem.png)
+
+### Treinos — a lista
+![Lista de treinos](screenshots/04-treinos.png)
+
+---
+
 ## Primeiro: a API do iGPSPORT existe?
 
 **Existe, mas não serve para projeto pessoal.**
