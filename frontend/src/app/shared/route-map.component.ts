@@ -123,9 +123,16 @@ export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private buildMap(): void {
     this.map = L.map(this.mapRef.nativeElement, { scrollWheelZoom: false, attributionControl: true });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      maxZoom: 19,
+    // Base cinza-clara da Esri (sem chave de API) - combina com o tema editorial
+    // e deixa a linha colorida da rota saltar. A CARTO passou a exigir API key.
+    const esriAttribution = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors';
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: esriAttribution,
+      maxZoom: 16,
+    }).addTo(this.map);
+    // Rotulos (nomes de ruas e lugares) numa camada leve por cima da base.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
     }).addTo(this.map);
     this.trackLayer.addTo(this.map);
     this.markerLayer.addTo(this.map);
