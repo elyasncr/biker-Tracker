@@ -49,7 +49,7 @@ import { INK, INK_FILL, SECONDARY } from '../core/theme';
           <div class="card">
             <h2>Constância</h2>
             @if (consistencyChart(); as cfg) {
-              <div class="chart-box"><app-chart [config]="cfg" /></div>
+              <div class="chart-box" style="height:180px"><app-chart [config]="cfg" /></div>
             } @else {
               <p class="hint">Nenhuma semana com treino ainda.</p>
             }
@@ -141,6 +141,11 @@ export class CoachComponent implements OnInit {
   private api = inject(ApiService);
 
   data = signal<CoachReading | null>(null);
+  // Config dos graficos vive em signal (referencia estavel), igual ao detalhe do
+  // treino. Como metodo chamado no template, o Angular criava um objeto novo a
+  // cada ciclo e o app-chart recriava o Chart.js sem parar, deixando tudo em branco.
+  consistencyChart = signal<ChartConfiguration | null>(null);
+  weightChart = signal<ChartConfiguration | null>(null);
   aviso = signal('');
   novoPeso: number | null = null;
   metaPedais = 3;
@@ -153,6 +158,8 @@ export class CoachComponent implements OnInit {
   private carregar(): void {
     this.api.coach().subscribe((d) => {
       this.data.set(d);
+      this.consistencyChart.set(this.buildConsistency(d));
+      this.weightChart.set(this.buildWeight(d));
       this.metaPedais = d.goal.rides_per_week;
       this.metaMinutos = d.goal.minutes_per_week;
     });
@@ -201,12 +208,12 @@ export class CoachComponent implements OnInit {
     this.salvarMeta();
   }
 
-  consistencyChart(): ChartConfiguration | null {
-    const weeks = this.data()?.progress.consistency.weeks;
+  private buildConsistency(d: CoachReading): ChartConfiguration | null {
+    const weeks = d.progress.consistency.weeks;
     if (!weeks?.length) {
       return null;
     }
-    const meta = this.data()!.progress.consistency.goal_minutes;
+    const meta = d.progress.consistency.goal_minutes;
     return {
       type: 'bar',
       data: {
@@ -239,8 +246,8 @@ export class CoachComponent implements OnInit {
     };
   }
 
-  weightChart(): ChartConfiguration | null {
-    const w = this.data()?.progress.weight;
+  private buildWeight(d: CoachReading): ChartConfiguration | null {
+    const w = d.progress.weight;
     if (!w?.series?.length) {
       return null;
     }
