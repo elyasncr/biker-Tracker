@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     rider_weight_kg: float = 75.0
     default_bike_weight_kg: float = 12.0
 
+    # Insight do treinador gerado por LLM local (Ollama). Desligavel; se o Ollama
+    # nao estiver no ar, o endpoint responde "indisponivel" sem derrubar a tela.
+    ollama_enabled: bool = True
+    ollama_host: str = "http://localhost:11434"
+    ollama_model: str = "qwen3:14b"
+
     igpsport_enabled: bool = False
     igpsport_client_id: str = ""
     igpsport_client_secret: str = ""

@@ -2,10 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration } from 'chart.js';
 import { ApiService } from '../core/api.service';
-import { CoachGoal, CoachReading } from '../core/models';
+import { CoachGoal, CoachInsight, CoachReading, InsightSummary } from '../core/models';
 import { ChartComponent } from '../shared/chart.component';
 import { NumPipe } from '../shared/format.pipe';
-import { INK, INK_FILL, SECONDARY } from '../core/theme';
+import { CLIMB, INK, INK_FILL, MUTED, SECONDARY, WATT } from '../core/theme';
 
 @Component({
   selector: 'app-coach',
@@ -17,6 +17,21 @@ import { INK, INK_FILL, SECONDARY } from '../core/theme';
         <div class="section-head">
           <h1>Treinador</h1>
           <span class="hint">{{ d.goal.rides_per_week }} pedais · {{ d.goal.minutes_per_week }} min por semana</span>
+        </div>
+
+        <div class="insight">
+          <span class="eyebrow">Análise do treinador</span>
+          @if (insightLoading()) {
+            <p class="lead loading">Lendo seus pedais com IA local…</p>
+          } @else if (insight()?.text?.overall) {
+            <p class="lead">{{ insight()?.text?.overall }}</p>
+            <div class="insight-foot">
+              <span class="hint">IA local · {{ insight()?.model }}</span>
+              <button class="btn ghost" (click)="recarregarInsight()">Atualizar análise</button>
+            </div>
+          } @else {
+            <p class="hint">{{ insight()?.reason ?? 'Análise indisponível — confira se o Ollama está rodando.' }}</p>
+          }
         </div>
 
         <div class="card ready">
@@ -40,7 +55,7 @@ import { INK, INK_FILL, SECONDARY } from '../core/theme';
           </div>
         }
 
-        <div class="section-head" style="margin-top:32px">
+        <div class="section-head" style="margin-top:24px; margin-bottom:0; border-bottom:0">
           <h2>Progresso</h2>
           <span class="hint">constância primeiro — é dela que vem o resto</span>
         </div>
@@ -78,6 +93,44 @@ import { INK, INK_FILL, SECONDARY } from '../core/theme';
             }
           </div>
         </div>
+
+        @if (insight()?.summary; as sum) {
+          <div class="section-head" style="margin-top:28px; margin-bottom:0; border-bottom:0">
+            <h2>Pontos pra evoluir</h2>
+            <span class="hint">{{ sum.rides_analyzed }} pedais lidos · leitura do .fit</span>
+          </div>
+
+          <div class="grid cols-2">
+            <div class="card">
+              <h2>Cadência</h2>
+              @if (cadenceChart(); as cfg) {
+                <div class="chart-box" style="height:170px"><app-chart [config]="cfg" /></div>
+              }
+              @if (insight()?.text?.cadencia; as t) { <p class="tip">{{ t }}</p> }
+            </div>
+            <div class="card">
+              <h2>Pacing</h2>
+              @if (pacingChart(); as cfg) {
+                <div class="chart-box" style="height:170px"><app-chart [config]="cfg" /></div>
+              }
+              @if (insight()?.text?.pacing; as t) { <p class="tip">{{ t }}</p> }
+            </div>
+            <div class="card">
+              <h2>Zonas de potência</h2>
+              @if (zonesChart(); as cfg) {
+                <div class="chart-box" style="height:170px"><app-chart [config]="cfg" /></div>
+              }
+              @if (insight()?.text?.zonas; as t) { <p class="tip">{{ t }}</p> }
+            </div>
+            <div class="card">
+              <h2>Terreno</h2>
+              @if (terrainChart(); as cfg) {
+                <div class="chart-box" style="height:170px"><app-chart [config]="cfg" /></div>
+              }
+              @if (insight()?.text?.terreno; as t) { <p class="tip">{{ t }}</p> }
+            </div>
+          </div>
+        }
 
         <div class="card" style="margin-top:20px">
           <h2>Condicionamento</h2>
@@ -121,7 +174,21 @@ import { INK, INK_FILL, SECONDARY } from '../core/theme';
   `,
   styles: [
     `
-      .ready { border-left: 3px solid var(--ink); margin-bottom: 20px; }
+      .ready { margin-bottom: 20px; }
+      .insight { border-top: 1px solid var(--rule); padding: 16px 0 20px; }
+      .insight .lead {
+        font-family: var(--display); font-size: 1.15rem; line-height: 1.5;
+        color: var(--ink); margin: 8px 0 0; max-width: 60ch;
+      }
+      .insight .lead.loading { color: var(--secondary); font-style: italic; }
+      .insight-foot {
+        display: flex; align-items: center; gap: 14px; margin-top: 12px; flex-wrap: wrap;
+      }
+      /* Comentario da IA abaixo de cada grafico: filete na cor da tinta a esquerda. */
+      .tip {
+        margin: 12px 0 0; padding-left: 12px; border-left: 2px solid var(--rule);
+        font-size: 0.9rem; line-height: 1.5; color: var(--secondary);
+      }
       .big { font-size: 1.6rem; text-transform: none; letter-spacing: 0; margin-bottom: 8px; }
       .linha { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
       .linha label {
@@ -146,6 +213,16 @@ export class CoachComponent implements OnInit {
   // cada ciclo e o app-chart recriava o Chart.js sem parar, deixando tudo em branco.
   consistencyChart = signal<ChartConfiguration | null>(null);
   weightChart = signal<ChartConfiguration | null>(null);
+
+  // Insight do treinador (Ollama). Carrega em separado porque e lento; a tela
+  // nao espera por ele. Os graficos saem dos numeros; o texto e best-effort.
+  insight = signal<CoachInsight | null>(null);
+  insightLoading = signal(true);
+  cadenceChart = signal<ChartConfiguration | null>(null);
+  zonesChart = signal<ChartConfiguration | null>(null);
+  pacingChart = signal<ChartConfiguration | null>(null);
+  terrainChart = signal<ChartConfiguration | null>(null);
+
   aviso = signal('');
   novoPeso: number | null = null;
   metaPedais = 3;
@@ -153,6 +230,80 @@ export class CoachComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregar();
+    this.carregarInsight();
+  }
+
+  private carregarInsight(refresh = false): void {
+    this.insightLoading.set(true);
+    this.api.coachInsight(refresh).subscribe({
+      next: (ins) => {
+        this.insight.set(ins);
+        if (ins.summary) {
+          this.cadenceChart.set(this.buildBars(ins.summary.cadence.seconds, this.cadenceColors(ins.summary)));
+          this.zonesChart.set(this.buildBars(ins.summary.zones.seconds, WATT));
+          this.pacingChart.set(this.buildPacing(ins.summary));
+          this.terrainChart.set(this.buildBars(ins.summary.terrain.seconds, [CLIMB, MUTED, SECONDARY]));
+        }
+        this.insightLoading.set(false);
+      },
+      error: () => {
+        this.insight.set({ available: false, text: null, reason: 'Análise indisponível agora.' });
+        this.insightLoading.set(false);
+      },
+    });
+  }
+
+  recarregarInsight(): void {
+    this.carregarInsight(true);
+  }
+
+  private cadenceColors(s: InsightSummary): string[] {
+    // A faixa ideal (75-90) ganha o verde; as outras ficam em tinta/esmaecido.
+    return Object.keys(s.cadence.seconds).map((k) => (k.startsWith('Ideal') ? CLIMB : INK));
+  }
+
+  // Converte segundos por categoria em barras de minutos. Cor unica ou por barra.
+  private buildBars(seconds: Record<string, number>, color: string | string[]): ChartConfiguration | null {
+    const labels = Object.keys(seconds);
+    if (!labels.length) {
+      return null;
+    }
+    return {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'min',
+            data: labels.map((k) => Math.round(seconds[k] / 60)),
+            backgroundColor: color,
+            borderRadius: 2,
+          },
+        ],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { title: { display: true, text: 'minutos' } }, x: { grid: { display: false } } },
+      },
+    };
+  }
+
+  private buildPacing(s: InsightSummary): ChartConfiguration | null {
+    const q = s.pacing.quarters_power;
+    if (!q?.length) {
+      return null;
+    }
+    return {
+      type: 'bar',
+      data: {
+        labels: ['1º quarto', '2º', '3º', 'fim'],
+        datasets: [{ label: 'W', data: q, backgroundColor: WATT, borderRadius: 2 }],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { title: { display: true, text: 'potência (W)' } }, x: { grid: { display: false } } },
+      },
+    };
   }
 
   private carregar(): void {

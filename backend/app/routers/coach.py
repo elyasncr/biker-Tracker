@@ -12,6 +12,7 @@ from ..config import get_settings
 from ..database import get_db
 from ..models import Activity, CoachGoal, WeightEntry
 from ..services import coach as coach_service
+from ..services import insight as insight_service
 from ..services import metrics
 
 router = APIRouter(prefix="/api/coach", tags=["treinador"])
@@ -141,6 +142,70 @@ def coach_reading(db: Session = Depends(get_db)):
         "goal": goal,
         "goal_suggestion": sugestao,
         "ftp_is_default": get_settings().ftp_watts == FTP_DEFAULT,
+    }
+
+
+# Cache em processo: a geracao no Ollama leva dezenas de segundos, e o insight
+# so muda quando o conjunto de treinos muda. Chave = (modelo, ids, ftp).
+_insight_cache: dict[tuple, dict] = {}
+
+INSIGHT_WINDOW_DAYS = 42
+INSIGHT_FALLBACK_RIDES = 6
+
+
+def _recent_activities(db: Session) -> list[Activity]:
+    todos = list(db.scalars(select(Activity).order_by(Activity.started_at.desc())))
+    corte = date.today() - timedelta(days=INSIGHT_WINDOW_DAYS)
+    recentes = [a for a in todos if a.started_at.date() >= corte]
+    if len(recentes) < 2:
+        recentes = todos[:INSIGHT_FALLBACK_RIDES]
+    return list(reversed(recentes))  # ordem cronologica
+
+
+@router.get("/insight")
+def coach_insight(refresh: bool = False, db: Session = Depends(get_db)):
+    """Analise acionavel dos treinos recentes: numeros (para os graficos) +
+    comentario do Ollama (best-effort). Cacheia por conjunto de treinos."""
+    settings = get_settings()
+    recentes = _recent_activities(db)
+    if not recentes:
+        return {"available": False, "reason": "Sem treinos para analisar ainda."}
+
+    rides = [
+        {
+            "date": a.started_at.date(),
+            "title": a.title,
+            "minutes": a.moving_time_s / 60,
+            "distance_km": a.distance_km,
+            "np": a.normalized_power,
+            "tss": a.tss,
+            "vi": a.variability_index,
+            "avg_cadence": a.avg_cadence,
+            "power_is_estimated": a.power_is_estimated,
+            "payload": a.stream.payload if a.stream else None,
+        }
+        for a in recentes
+    ]
+    summary = insight_service.build_summary(rides, settings.ftp_watts)
+
+    key = (settings.ollama_model, tuple(a.id for a in recentes), settings.ftp_watts)
+    cached = _insight_cache.get(key)
+    if refresh:
+        cached = None
+
+    if cached is None and settings.ollama_enabled:
+        texto = insight_service.generate_text(summary, settings.ollama_host, settings.ollama_model)
+        if texto:
+            cached = {"text": texto, "generated_at": datetime.utcnow().isoformat()}
+            _insight_cache[key] = cached
+
+    return {
+        "available": True,
+        "summary": summary,
+        "text": cached["text"] if cached else None,
+        "text_available": cached is not None,
+        "model": settings.ollama_model,
+        "generated_at": cached["generated_at"] if cached else None,
     }
 
 

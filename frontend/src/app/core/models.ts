@@ -361,3 +361,31 @@ export interface WeightLogEntry {
   weight_kg: number;
   note: string | null;
 }
+
+export interface InsightSummary {
+  rides_analyzed: number;
+  cadence: { seconds: Record<string, number>; avg_rpm: number | null; heavy_share_pct: number };
+  zones: { seconds: Record<string, number> };
+  pacing: { quarters_power: number[] | null; fade_pct: number | null };
+  terrain: { seconds: Record<string, number> };
+  power_estimated: boolean;
+  totals: { minutes: number; distance_km: number; avg_vi: number | null };
+}
+
+export interface InsightText {
+  overall: string;
+  cadencia: string;
+  pacing: string;
+  zonas: string;
+  terreno: string;
+}
+
+export interface CoachInsight {
+  available: boolean;
+  reason?: string;
+  summary?: InsightSummary;
+  text: InsightText | null;
+  text_available?: boolean;
+  model?: string;
+  generated_at?: string | null;
+}

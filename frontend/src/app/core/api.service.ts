@@ -11,6 +11,7 @@ import {
   ActivitySummary,
   AthleteSettings,
   CoachGoal,
+  CoachInsight,
   CoachReading,
   DrivetrainPresets,
   PmcPoint,
@@ -154,6 +155,11 @@ export class ApiService {
 
   setGoal(goal: CoachGoal): Observable<CoachGoal> {
     return this.http.put<CoachGoal>(this.base + '/coach/goal', goal);
+  }
+
+  coachInsight(refresh = false): Observable<CoachInsight> {
+    const params = new HttpParams().set('refresh', refresh);
+    return this.http.get<CoachInsight>(this.base + '/coach/insight', { params });
   }
 
   weightLog(): Observable<WeightLogEntry[]> {

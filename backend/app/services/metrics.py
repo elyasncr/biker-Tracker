@@ -20,12 +20,12 @@ POWER_CURVE_WINDOWS = [1, 5, 15, 30, 60, 120, 300, 600, 1200, 1800, 3600]
 
 # Zonas de potencia por % do FTP (modelo Coggan)
 POWER_ZONES = [
-    ("Z1 Recuperacao", 0.00, 0.55),
+    ("Z1 Recuperação", 0.00, 0.55),
     ("Z2 Endurance", 0.55, 0.75),
     ("Z3 Tempo", 0.75, 0.90),
     ("Z4 Limiar", 0.90, 1.05),
     ("Z5 VO2max", 1.05, 1.20),
-    ("Z6 Anaerobico", 1.20, 1.50),
+    ("Z6 Anaeróbico", 1.20, 1.50),
     ("Z7 Neuromuscular", 1.50, 99.0),
 ]
 
